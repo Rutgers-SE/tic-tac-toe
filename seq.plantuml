@@ -1,0 +1,29 @@
+@startuml
+
+
+Player1 -> GameServer : "join"
+activate GameServer
+Player1 <-- GameServer :  "ok #1"
+deactivate GameServer
+
+
+
+Player2 -> GameServer : "join"
+activate GameServer
+Player2 <-- GameServer : "ok join #1"
+deactivate GameServer
+
+
+
+Player1 -> GameServer : "move #1 00"
+activate GameServer
+Player1 <-- GameServer : "ok move #1"
+deactivate GameServer
+
+
+
+Player2 -> GameServer : "move #1 11"
+activate GameServer
+Player2 <-- GameServer : "ok move #1"
+deactivate GameServer
+@enduml
