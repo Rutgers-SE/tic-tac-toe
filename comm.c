@@ -26,14 +26,113 @@ create_udp_socket(int port)
   return cp;
 }
 
+int
+mch_full(struct Match* match)
+{
+  if (match->player_one.status == P_READY &&
+      match->player_two.status == P_READY)
+    {
+      return 1;
+    }
+  return 0;
+}
 
+
+struct Match*
+get_pending_or_empty_match(struct GameServer* gs, int* gi)
+{
+  int i;
+  for (i=0; i<256; i++)
+    if (gs->matches[i].status == M_PENDING || gs->matches[i].status == M_EMPTY)
+      {
+        *gi = i;
+        return (gs->matches + i);
+      }
+  return NULL;
+}
 
 int
-gs_join(SAI client, char* response)
+resp_ok(char* response)
+{
+  strcpy(response, "ok ");
+  return 3;
+}
+
+int
+notify_players(struct GameServer* gs, int match_index)
+{
+  char response[256];
+  int offset = 0;
+  offset = resp_ok(response);
+  offset = offset + board_to_string(response+offset,
+                           match_index,
+                           gs->matches[match_index].board);
+  int cur_off = offset;
+  if (gs->matches[match_index].player_one.status == P_READY)
+    {
+      if (gs->matches[match_index].whos_turn == 1)
+        strcpy(response+cur_off, "t1;");
+      else if (gs->matches[match_index].whos_turn == 2)
+        strcpy(response+cur_off, "t0;");
+      sendto(gs->cp.descriptor,
+             response,
+             strlen(response),
+             0,
+             (SA*)&(gs->matches[match_index].player_one.info),
+             sizeof(gs->matches[match_index].player_one.info));
+    }
+  if (gs->matches[match_index].player_two.status == P_READY)
+    {
+      if (gs->matches[match_index].whos_turn == 1)
+        strcpy(response+cur_off, "t0;");
+      else if (gs->matches[match_index].whos_turn == 2)
+        strcpy(response+cur_off, "t1;");
+      sendto(gs->cp.descriptor,
+             response,
+             strlen(response),
+             0,
+             (SA*)&(gs->matches[match_index].player_two.info),
+             sizeof(gs->matches[match_index].player_two.info));
+    }
+  return 0;
+}
+
+int
+board_to_string(char* output, int match_index, int board[3][3])
+{
+  sprintf(output, "m%i b%i%i%i%i%i%i%i%i%i ",
+          match_index,
+          board[0][0],
+          board[0][1],
+          board[0][2],
+
+          board[1][0],
+          board[1][1],
+          board[1][2],
+
+          board[2][0],
+          board[2][1],
+          board[2][2]
+          );
+  return strlen(output);
+}
+
+int
+gs_join(struct GameServer* gs, SAI client, int* gi)
 {
   // get empty pending match
-
+  struct Match* match = get_pending_or_empty_match(gs, gi);
+  if (match == NULL)
+    return 1;
   // insert client
+  if (mch_add_player(match, client))
+    return 1;
+  // check match status
+  if (mch_full(match))
+    {
+      match->status = M_PENDING;
+      match->whos_turn = 1;
+    }
 
   return 0;
 }
@@ -45,7 +144,29 @@ gs_leave(SAI client, int game_id, char* response)
 }
 
 
+void
+init_game_server(struct GameServer* gs)
+{
+  bzero(gs, sizeof(*gs));
+}
 
+int
+mch_add_player(struct Match* match, SAI pin)
+{
+  if (match->player_one.status == P_EMPTY)
+    {
+      match->player_one.info = pin;
+      match->player_one.status = P_READY;
+      return 0;
+    }
+  if (match->player_two.status == P_EMPTY)
+    {
+      match->player_two.info = pin;
+      match->player_two.status = P_READY;
+      return 0;
+    }
+  return 1;
+}
 
 
 void
@@ -206,7 +327,10 @@ int
 com_parse_command(char* command, char* request)
 {
   char req[CMDLEN];
+  char *com;
   memcpy(req, request, CMDLEN);
-  command = strtok(req, " ;");
+  com = strtok(req, " ;");
+  memcpy(command, com, strlen(com));
+  command[strlen(com)] = 0;
   return 0;
 }

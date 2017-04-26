@@ -18,6 +18,11 @@
 #define IS_VALID_PEICE(c) assert(c==X||c==O||c==_)
 #define IS_VALID_MODE(m) assert(m==MOVE||m==WAIT)
 
+#define M_EMPTY 0
+#define M_PENDING 1
+#define M_INPROGRESS 2
+
+
 
 // socket stuff
 #define SAI struct sockaddr_in
@@ -42,19 +47,22 @@ struct Motion
 };
 
 
+#define P_EMPTY 0
+#define P_READY 1
 
 struct Player
 {
-  char name[256];
   struct sockaddr_in info;
-  int desc;
+  int status;
 };
 
 struct Match
 {
+  int board[3][3];
   struct Player player_one;
   struct Player player_two;
-  int count;
+  int whos_turn;
+  int status;
 };
 
 struct
@@ -70,10 +78,11 @@ char character_representation(int c);
 
 int com_parse_command(char*, char*);
 
-int gs_join(SAI client, char* response);
+int gs_join(struct GameServer* gs, SAI client, int* gi);
 int gs_leave(SAI client,  int game_id, char* response);
 int gs_move(SAI client, int game_id, char* response);
 
+int board_to_string(char* output, int match_index, int board[3][3]);
 
 int determine_winner(int board[3][3]);
 void print_board(int board[3][3]);
@@ -82,6 +91,8 @@ void readstr(char* buf);
 int parse_coords(char* buf, int* row, int* col);
 int parse_motion_command(char* cmd, int* gid, int* pid, int* row, int* col);
 int board_place_piece(int board[3][3], int row, int col, int value);
+int mch_add_player(struct Match* match, SAI pin);
 
+int notify_players(struct GameServer* gs, int match_index);
 
 #endif

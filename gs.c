@@ -1,4 +1,5 @@
 #include <strings.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "comm.h"
@@ -31,7 +32,17 @@ main(int argc, char** argv)
       request[bytes_recv]='\0';
       char command[12];
       com_parse_command(command, request);
-      printf("%s %s\n", request, command);
+      if (strcmp(command, "join") == 0)
+        {
+          int match_index;
+          gs_join(&gs, client_in, &match_index);
+          notify_players(&gs, match_index);
+        }
+
+      else if (strcmp(command, "move") == 0)
+        {
+          char response[256];
+        }
     }
 
   return 0;
