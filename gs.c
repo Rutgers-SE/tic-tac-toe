@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <arpa/inet.h>
 
 int main(int argc, char **argv) {
   int port = 10001;
@@ -18,17 +19,20 @@ int main(int argc, char **argv) {
   while (1) {
     char request[CMDLEN];
     SAI client_in;
-    socklen_t client_len;
+    socklen_t client_len = sizeof(client_in);
     int bytes_recv = recvfrom(gs.cp.descriptor, request, CMDLEN, 0,
                               (SA *)&client_in, &client_len);
     request[bytes_recv] = '\0';
-    printf("Received %i\n", bytes_recv);
+    printf("Received: %s, port: %i, FD: %i\n", request, (client_in.sin_port), gs.cp.descriptor);
     char command[12];
     com_parse_command(command, request);
     if (strcmp(command, "join") == 0) {
       int match_index;
+
       gs_join(&gs, client_in, &match_index);
-      notify_players(&gs, match_index);
+      if (notify_players(&gs, match_index) == 0) {
+        printf("I've sent a message to a client\n");
+      }
     }
 
     else if (strcmp(command, "move") == 0) {
