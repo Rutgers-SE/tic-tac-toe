@@ -22,6 +22,7 @@ int main(int argc, char **argv) {
     int bytes_recv = recvfrom(gs.cp.descriptor, request, CMDLEN, 0,
                               (SA *)&client_in, &client_len);
     request[bytes_recv] = '\0';
+    printf("Received %i\n", bytes_recv);
     char command[12];
     com_parse_command(command, request);
     if (strcmp(command, "join") == 0) {
