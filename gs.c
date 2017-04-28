@@ -28,15 +28,27 @@ int main(int argc, char **argv) {
     com_parse_command(command, request);
     if (strcmp(command, "join") == 0) {
       int match_index;
-
       gs_join(&gs, client_in, &match_index);
-      if (notify_players(&gs, match_index) == 0) {
-        printf("I've sent a message to a client\n");
+      if (notify_players(&gs, match_index) < 0) {
+        printf("Error notifying Players\n");
       }
+    }
+
+    else if (strcmp(command, "leave") == 0) {
+    }
+
+    else if (strcmp(command, "move") == 0) {
     }
 
     else if (strcmp(command, "move") == 0) {
       char response[256];
+    }
+
+    else {
+      printf("Sending Error Message\n");
+      if (sendto(gs.cp.descriptor, "bad ", 4, 0, (SA *)&client_in, client_len) < 0) {
+        perror("Error sending error message");
+      }
     }
   }
 

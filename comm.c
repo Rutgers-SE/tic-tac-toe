@@ -106,12 +106,12 @@ int gs_leave(SAI client, int game_id, char *response) { return 0; }
 void init_game_server(struct GameServer *gs) { bzero(gs, sizeof(*gs)); }
 
 int mch_add_player(struct Match *match, SAI pin) {
-  if (match->player_one.status == P_EMPTY) {
+  if (match->player_one.status == P_EMPTY && match->player_two.info.sin_port != pin.sin_port) {
     match->player_one.info = pin;
     match->player_one.status = P_READY;
     return 0;
   }
-  if (match->player_two.status == P_EMPTY) {
+  if (match->player_two.status == P_EMPTY && match->player_one.info.sin_port != pin.sin_port) {
     match->player_two.info = pin;
     match->player_two.status = P_READY;
     return 0;
