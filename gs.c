@@ -1,9 +1,9 @@
 #include "comm.h"
+#include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <arpa/inet.h>
 
 int main(int argc, char **argv) {
   int port = 10001;
@@ -17,16 +17,23 @@ int main(int argc, char **argv) {
 
   // gameloop
   while (1) {
+
+    /* the initial reception of data */
     char request[CMDLEN];
     SAI client_in;
     socklen_t client_len = sizeof(client_in);
+    printf("Waiting...\n");
     int bytes_recv = recvfrom(gs.cp.descriptor, request, CMDLEN, 0,
                               (SA *)&client_in, &client_len);
     request[bytes_recv] = '\0';
-    printf("Received: %s, port: %i, FD: %i\n", request, (client_in.sin_port), gs.cp.descriptor);
+
+    printf("Received: %s, port: %i, FD: %i\n", request, (client_in.sin_port),
+           gs.cp.descriptor);
+
     char command[12];
     com_parse_command(command, request);
     if (strcmp(command, "join") == 0) {
+      /* handle players trying to join a match */
       int match_index;
       gs_join(&gs, client_in, &match_index);
       if (notify_players(&gs, match_index) < 0) {
@@ -38,15 +45,13 @@ int main(int argc, char **argv) {
     }
 
     else if (strcmp(command, "move") == 0) {
-    }
-
-    else if (strcmp(command, "move") == 0) {
       char response[256];
     }
 
     else {
       printf("Sending Error Message\n");
-      if (sendto(gs.cp.descriptor, "bad ", 4, 0, (SA *)&client_in, client_len) < 0) {
+      if (sendto(gs.cp.descriptor, "bad ", 4, 0, (SA *)&client_in, client_len) <
+          0) {
         perror("Error sending error message");
       }
     }

@@ -66,12 +66,16 @@ void init_board(B(board));
 char character_representation(int c);
 
 int com_parse_command(char *, char *);
+int com_parse_match_index(char *, int);
+void com_parse_board_string(char *, char *);
+int com_response_ok(char *, unsigned int);
 
 int gs_join(struct GameServer *gs, SAI client, int *gi);
-int gs_leave(SAI client, int game_id, char *response);
-int gs_move(SAI client, int game_id, char *response);
+int gs_leave(struct GameServer *gs, SAI client, int gi);
+int gs_move(struct GameServer *gs, SAI client, int gi);
 
 int board_to_string(char *output, int match_index, int board[3][3]);
+void board_print_from_string(char *);
 
 int determine_winner(int board[3][3]);
 void print_board(int board[3][3]);

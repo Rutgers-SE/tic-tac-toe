@@ -46,18 +46,25 @@ int resp_ok(char *response) {
   return 3;
 }
 
+/**
+ * Notify players will send the current state of the match to the players
+ * who are participating.
+ */
 int notify_players(struct GameServer *gs, int match_index) {
+  /* NOTE: this code is gross */
   char response[256];
   int offset = 0;
-  offset = resp_ok(response);
-  offset = offset + board_to_string(response + offset, match_index,
-                                    gs->matches[match_index].board);
+  offset = resp_ok(response); /* make the response ok.... BAD */
+  offset = offset + board_to_string(
+                        response + offset, match_index,
+                        gs->matches[match_index].board); /* write the board */
   int cur_off = offset;
   if (gs->matches[match_index].player_one.status == P_READY) {
     if (gs->matches[match_index].whos_turn == 1)
       strcpy(response + cur_off, "t1;");
     else if (gs->matches[match_index].whos_turn == 2)
       strcpy(response + cur_off, "t0;");
+    printf("Sending: %s\n", response);
     sendto(gs->cp.descriptor, response, strlen(response), 0,
            (SA *)&(gs->matches[match_index].player_one.info),
            sizeof(gs->matches[match_index].player_one.info));
@@ -67,6 +74,7 @@ int notify_players(struct GameServer *gs, int match_index) {
       strcpy(response + cur_off, "t0;");
     else if (gs->matches[match_index].whos_turn == 2)
       strcpy(response + cur_off, "t1;");
+    printf("Sending: %s\n", response);
     sendto(gs->cp.descriptor, response, strlen(response), 0,
            (SA *)&(gs->matches[match_index].player_two.info),
            sizeof(gs->matches[match_index].player_two.info));
@@ -74,14 +82,23 @@ int notify_players(struct GameServer *gs, int match_index) {
   return 0;
 }
 
+/**
+ * Send board state through the wire
+ */
 int board_to_string(char *output, int match_index, int board[3][3]) {
-  sprintf(output, "m%i b%i%i%i%i%i%i%i%i%i ", match_index, board[0][0],
-          board[0][1], board[0][2],
-
-          board[1][0], board[1][1], board[1][2],
-
+  sprintf(output, "m%i b%d-%d-%d-%d-%d-%d-%d-%d-%d ", match_index, board[0][0],
+          board[0][1], board[0][2], board[1][0], board[1][1], board[1][2],
           board[2][0], board[2][1], board[2][2]);
   return strlen(output);
+}
+
+void board_print_from_string(char *board_string) {
+  int board[3][3];
+  sscanf(board_string, "%d-%d-%d-%d-%d-%d-%d-%d-%d",
+         board[0]+0, board[0]+1, board[0]+2,
+         board[1]+0, board[1]+1, board[1]+2,
+         board[2]+0, board[2]+1, board[2]+2);
+  print_board(board);
 }
 
 int gs_join(struct GameServer *gs, SAI client, int *gi) {
@@ -101,17 +118,22 @@ int gs_join(struct GameServer *gs, SAI client, int *gi) {
   return 0;
 }
 
-int gs_leave(SAI client, int game_id, char *response) { return 0; }
+/**
+ * Return -1 on error, 0 on success
+ */
+int gs_leave(struct GameServer *gs, SAI client, int gi) { return 0; }
 
 void init_game_server(struct GameServer *gs) { bzero(gs, sizeof(*gs)); }
 
 int mch_add_player(struct Match *match, SAI pin) {
-  if (match->player_one.status == P_EMPTY && match->player_two.info.sin_port != pin.sin_port) {
+  if (match->player_one.status == P_EMPTY &&
+      match->player_two.info.sin_port != pin.sin_port) {
     match->player_one.info = pin;
     match->player_one.status = P_READY;
     return 0;
   }
-  if (match->player_two.status == P_EMPTY && match->player_one.info.sin_port != pin.sin_port) {
+  if (match->player_two.status == P_EMPTY &&
+      match->player_one.info.sin_port != pin.sin_port) {
     match->player_two.info = pin;
     match->player_two.status = P_READY;
     return 0;
@@ -242,6 +264,32 @@ int parse_coords(char *buf, int *row, int *col) {
   return 0;
 }
 
+void com_parse_board_string(char *response, char *board_string) {
+  /* NOTE: this can be refactored */
+  int start = 0;
+  for (; (response[start] != ' ' || response[start + 1] != 'b') && start + 1 < CMDLEN; start++);
+  start += 2;
+  int end = start;
+  for (; response[end] != ' ' && end < CMDLEN; end++);
+  strncpy(board_string, response + start, end - start);
+  board_string[end - start] = '\0';
+}
+
+/**
+ * Return -1 on error
+ * return index on success
+ */
+int com_parse_match_index(char *response, int len) {
+  char match_index_string[CMDLEN];
+  int start = 0;
+  for (; response[start] != ' ' && response[start + 1] != 'm' && start < len; start++);
+  start += 2;
+  int end = start;
+  for (; response[end] != ' ' && end < len; end++);
+  strncpy(match_index_string, response + start, end-start);
+  return atoi(match_index_string);
+}
+
 // tele
 int com_parse_command(char *command, char *request) {
   char req[CMDLEN];
@@ -251,4 +299,23 @@ int com_parse_command(char *command, char *request) {
   memcpy(command, com, strlen(com));
   command[strlen(com)] = 0;
   return 0;
+}
+
+/**
+ * Return 1 when the response was positive
+ * Return 0 when the response was positive
+ */
+int com_response_ok(char *response, unsigned int len) {
+  char first_token[len];
+  int i = 0;
+  for (; response[i] != ' ' && i < CMDLEN; i++) {
+    first_token[i] = response[i];
+  }
+  first_token[i + 1] = 0;
+
+  if (strcmp(first_token, "ok") == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
