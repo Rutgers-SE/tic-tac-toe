@@ -66,9 +66,10 @@ void init_board(B(board));
 char character_representation(int c);
 
 int com_parse_command(char *, char *);
-int com_parse_match_index(char *, int);
-void com_parse_board_string(char *, char *);
+int com_parse_match_index(char *, int); void com_parse_board_string(char *, char *);
 int com_response_ok(char *, unsigned int);
+void com_parse_motion(char *response, struct Motion *motion);
+void com_parse_char_command(char *dest, char *src, char tag);
 
 int gs_join(struct GameServer *gs, SAI client, int *gi);
 int gs_leave(struct GameServer *gs, SAI client, int gi);
@@ -87,5 +88,8 @@ int board_place_piece(int board[3][3], int row, int col, int value);
 int mch_add_player(struct Match *match, SAI pin);
 
 int notify_players(struct GameServer *gs, int match_index);
+
+// pack set
+void pack_match_id(char *command, int match_index);
 
 #endif

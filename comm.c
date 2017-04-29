@@ -234,6 +234,10 @@ int parse_motion_command(char *cmd, int *gid, int *pid, int *row, int *col) {
 
 int pack_motion_command(char *cmd, int gid, int pid, int row, int col);
 
+void pack_match_id(char *command, int match_index) {
+  sprintf(command, "%s m%i", command, match_index);
+}
+
 // END PARSE AND PACKERS ----------------------------------------------
 
 void readstr(char *buf) {
@@ -282,10 +286,12 @@ void com_parse_board_string(char *response, char *board_string) {
 int com_parse_match_index(char *response, int len) {
   char match_index_string[CMDLEN];
   int start = 0;
-  for (; response[start] != ' ' && response[start + 1] != 'm' && start < len; start++);
+  while(response[start] != ' ' && response[start + 1] != 'm' && start+1 < len)
+    start++;
   start += 2;
   int end = start;
-  for (; response[end] != ' ' && end < len; end++);
+  while (response[end] != ' ' && end < len)
+    end++;
   strncpy(match_index_string, response + start, end-start);
   return atoi(match_index_string);
 }
@@ -318,4 +324,25 @@ int com_response_ok(char *response, unsigned int len) {
   } else {
     return 0;
   }
+}
+
+
+/**
+ * Parses that command thooooo
+ */
+void com_parse_motion(char *response, struct Motion *motion) {
+  char dest[3];        /* the space allocation is 3 because #-# */
+  com_parse_char_command(dest, response, 'p');
+  sscanf(dest, "%i-%i", &(motion->row), &(motion->column));
+}
+
+void com_parse_char_command(char *dest, char *src, char tag) {
+  int start = 0;
+  while (src[start] != ' ' && src[start + 1] != tag && start+1 < CMDLEN)
+    start++;
+  start += 2;
+  int end = start;
+  while (src[end] != ' ' && src[end] != '\0' && end < CMDLEN)
+    end++;
+  strncpy(dest,src + start, end-start);
 }

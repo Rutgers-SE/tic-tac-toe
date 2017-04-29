@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
   // gameloop
   while (1) {
 
-    /* the initial reception of data */
+    /* se */
     char request[CMDLEN];
     SAI client_in;
     socklen_t client_len = sizeof(client_in);
@@ -30,6 +30,8 @@ int main(int argc, char **argv) {
     printf("Received: %s, port: %i, FD: %i\n", request, (client_in.sin_port),
            gs.cp.descriptor);
 
+
+    /* parse the client's command */
     char command[12];
     com_parse_command(command, request);
     if (strcmp(command, "join") == 0) {
@@ -42,10 +44,37 @@ int main(int argc, char **argv) {
     }
 
     else if (strcmp(command, "leave") == 0) {
+      /* NOTE: handle client leaving operatipopn */
     }
 
-    else if (strcmp(command, "move") == 0) {
-      char response[256];
+    else if (!strcmp(command, "move")) {
+      /* handle client motion command */
+
+      // parse the incoming resposne
+      char response[CMDLEN];
+      int match_index = com_parse_match_index(request, CMDLEN); /* get the match id */
+      struct Motion motion;
+      com_parse_motion(request, &motion); /* get the clients attempted motion */
+      struct Match *match = gs.matches + match_index; /* get the match structure from the the game server */
+      board_place_piece(match->board, motion.row, motion.column, X); /* place the piece on the board */
+
+
+      printf("Response: %s\n", response);
+
+      /* start packing the response */
+
+      /* convert the board to a string */
+      char board[17];
+      board_to_string(board, match_index, match->board);
+
+
+      sprintf(response, "ok %s t1", board);
+
+
+      if (sendto(gs.cp.descriptor, response, strlen(response), 0, (SA *)&client_in, sizeof(client_in)) < 0) {
+        perror("There was an error sending the information to the client");
+        continue;
+      }
     }
 
     else {

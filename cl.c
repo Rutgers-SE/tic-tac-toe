@@ -10,7 +10,7 @@ struct client_state_t {
   int match_index;
 };
 
-void cs_to_string(struct client_state_t cs, char *buf) {
+void client_state_to_str(struct client_state_t cs, char *buf) {
   sprintf(buf, "M=%i", cs.match_index);
 }
 
@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 
   while (1) {
 
-    cs_to_string(client_state, client_state_string);
+    client_state_to_str(client_state, client_state_string);
     printf("TTT:[%s]> ", client_state_string); /* repl prompt */
 
     char command[CMDLEN];
@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
         client_state.match_index = com_parse_match_index(response, CMDLEN);
         printf("match index: %i\n", client_state.match_index);
 
-        cs_to_string(client_state, client_state_string);
+        client_state_to_str(client_state, client_state_string);
         printf("TTT:[%s]< The command was successful\n", client_state_string);
 
         char board_string[CMDLEN];
@@ -89,8 +89,49 @@ int main(int argc, char **argv) {
       } else {
         /* Handle the case when you could not join a match */
         printf("%s\n", response);
-        cs_to_string(client_state, client_state_string);
+        client_state_to_str(client_state, client_state_string);
         printf("TTT:[]< Could not connect to match\n");
+      }
+    }
+    else if (strcmp(operator, "move") == 0) {
+
+      pack_match_id(command, client_state.match_index); /* append the match index to the command string */
+
+      /* attempt to join match */
+      if (sendto(cp.descriptor, command, command_len, 0, (SA *)&cp.info,
+                 sizeof(cp.info)) < 0) {
+        perror("Error Sending Command");
+        exit(1);
+      }
+
+      /* this is the response from the server */
+      char response[CMDLEN];
+      bzero(response, CMDLEN);
+
+      SAI client_in;
+      socklen_t client_len = sizeof(client_in);
+
+      if (recvfrom(cp.descriptor, response, CMDLEN, 0, (SA *)&client_in,
+                   &client_len) < 0) {
+        perror("Error");
+        exit(1);
+      }
+
+      if (com_response_ok(response, CMDLEN)) {
+        /* handle the case when accepted into the match */
+        printf("%s\n", response);
+
+        client_state.match_index = com_parse_match_index(response, CMDLEN);
+        printf("match index: %i\n", client_state.match_index);
+
+        client_state_to_str(client_state, client_state_string);
+        printf("TTT:[%s]< The command was successful\n", client_state_string);
+
+        char board_string[CMDLEN];
+        com_parse_board_string(response, board_string);
+        printf("Parsed board: %s\n", board_string);
+        board_print_from_string(board_string);
+
       }
     }
     else {
