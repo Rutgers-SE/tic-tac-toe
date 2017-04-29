@@ -23,21 +23,20 @@ struct ConPair create_udp_socket(int port) {
 }
 
 int mch_full(struct Match *match) {
-  if (match->player_one.status == P_READY &&
-      match->player_two.status == P_READY) {
-    return 1;
-  }
-  return 0;
+  // Return 1 if both players are ready, else return 0
+  return (match->player_one.status == P_READY) &&
+         (match->player_two.status == P_READY);
 }
 
 struct Match *get_pending_or_empty_match(struct GameServer *gs, int *gi) {
   int i;
-  for (i = 0; i < 256; i++)
+  for (i = 0; i < 256; i++) {
     if (gs->matches[i].status == M_PENDING ||
         gs->matches[i].status == M_EMPTY) {
       *gi = i;
       return (gs->matches + i);
     }
+  }
   return NULL;
 }
 
@@ -52,6 +51,7 @@ int resp_ok(char *response) {
  */
 int notify_players(struct GameServer *gs, int match_index) {
   /* NOTE: this code is gross */
+  /* Yeah, I'm not touching this */
   char response[256];
   int offset = 0;
   offset = resp_ok(response); /* make the response ok.... BAD */
@@ -86,18 +86,19 @@ int notify_players(struct GameServer *gs, int match_index) {
  * Send board state through the wire
  */
 int board_to_string(char *output, int match_index, int (*board)[3]) {
-  sprintf(output, "m%i b%d-%d-%d-%d-%d-%d-%d-%d-%d ", match_index, board[0][0],
-          board[0][1], board[0][2], board[1][0], board[1][1], board[1][2],
+  sprintf(output, "m%i b%d-%d-%d-%d-%d-%d-%d-%d-%d ", match_index, 
+          board[0][0], board[0][1], board[0][2], 
+          board[1][0], board[1][1], board[1][2],
           board[2][0], board[2][1], board[2][2]);
   return strlen(output);
 }
 
 void board_print_from_string(char *board_string) {
   int board[3][3];
-  sscanf(board_string, "%d-%d-%d-%d-%d-%d-%d-%d-%d",
-         board[0]+0, board[0]+1, board[0]+2,
-         board[1]+0, board[1]+1, board[1]+2,
-         board[2]+0, board[2]+1, board[2]+2);
+  sscanf(board_string, "%d-%d-%d-%d-%d-%d-%d-%d-%d", 
+         board[0] + 0, board[0] + 1, board[0] + 2, 
+         board[1] + 0, board[1] + 1, board[1] + 2, 
+         board[2] + 0, board[2] + 1, board[2] + 2);
   print_board(board);
 }
 
@@ -271,10 +272,14 @@ int parse_coords(char *buf, int *row, int *col) {
 void com_parse_board_string(char *response, char *board_string) {
   /* NOTE: this can be refactored */
   int start = 0;
-  for (; (response[start] != ' ' || response[start + 1] != 'b') && start + 1 < CMDLEN; start++);
+  for (; (response[start] != ' ' || response[start + 1] != 'b') &&
+         start + 1 < CMDLEN;
+       start++)
+    ;
   start += 2;
   int end = start;
-  for (; response[end] != ' ' && end < CMDLEN; end++);
+  for (; response[end] != ' ' && end < CMDLEN; end++)
+    ;
   strncpy(board_string, response + start, end - start);
   board_string[end - start] = '\0';
 }
@@ -327,7 +332,6 @@ int com_response_ok(char *response, unsigned int len) {
   }
 }
 
-
 /**
  * Parses that command thooooo
  */
@@ -346,5 +350,5 @@ void com_parse_char_command(char *dest, char *src, char tag) {
   int end = start;
   while (src[end] != ' ' && src[end] != '\0' && end < CMDLEN)
     end++;
-  strncpy(dest,src + start, end-start);
+  strncpy(dest, src + start, end - start);
 }
