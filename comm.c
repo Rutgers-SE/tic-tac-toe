@@ -98,19 +98,17 @@ int notify_players(struct GameServer *gs, int match_index) {
  * Send board state through the wire
  */
 int board_to_string(char *output, int match_index, int (*board)[3]) {
-  sprintf(output, "m%i b%d-%d-%d-%d-%d-%d-%d-%d-%d ", match_index, 
-          board[0][0], board[0][1], board[0][2], 
-          board[1][0], board[1][1], board[1][2],
+  sprintf(output, "m%i b%d-%d-%d-%d-%d-%d-%d-%d-%d ", match_index, board[0][0],
+          board[0][1], board[0][2], board[1][0], board[1][1], board[1][2],
           board[2][0], board[2][1], board[2][2]);
   return strlen(output);
 }
 
 void board_print_from_string(char *board_string) {
   int board[3][3];
-  sscanf(board_string, "%d-%d-%d-%d-%d-%d-%d-%d-%d", 
-         &board[0][0], &board[0][1], &board[0][2], 
-         &board[1][0], &board[1][1], &board[1][2], 
-         &board[2][0], &board[2][1], &board[2][2]);
+  sscanf(board_string, "%d-%d-%d-%d-%d-%d-%d-%d-%d", &board[0][0], &board[0][1],
+         &board[0][2], &board[1][0], &board[1][1], &board[1][2], &board[2][0],
+         &board[2][1], &board[2][2]);
   print_board(board);
 }
 
@@ -189,6 +187,9 @@ int determine_winner(int (*board)[3]) {
   }
 
   // checking diagonals
+  if (board[0][0] == board[1][1] == board[2][2] || board[0][2] == board[1][1] == board[2][0]) {
+    return board[1][1];
+  }
 
   return _;
 }
@@ -330,15 +331,14 @@ int com_response_ok(char *response, unsigned int len) {
  * Parses that command thooooo
  */
 void com_parse_motion(char *response, struct Motion *motion) {
-  char dest[3];        /* the space allocation is 3 because #-# */
+  char dest[3]; /* the space allocation is 3 because #-# */
   com_parse_char_command(dest, response, 'p'); /* p for play */
   sscanf(dest, "%i-%i", &(motion->row), &(motion->column));
 }
 
-
 void com_parse_char_command(char *dest, char *src, char tag) {
   int start = 0;
-  while (!(src[start]==' ' && src[start+1]==tag) && start+1 < CMDLEN)
+  while (!(src[start] == ' ' && src[start + 1] == tag) && start + 1 < CMDLEN)
     start++;
   start += 2;
   int end = start;
