@@ -96,9 +96,9 @@ int board_to_string(char *output, int match_index, int (*board)[3]) {
 void board_print_from_string(char *board_string) {
   int board[3][3];
   sscanf(board_string, "%d-%d-%d-%d-%d-%d-%d-%d-%d", 
-         board[0] + 0, board[0] + 1, board[0] + 2, 
-         board[1] + 0, board[1] + 1, board[1] + 2, 
-         board[2] + 0, board[2] + 1, board[2] + 2);
+         &board[0][0], &board[0][1], &board[0][2], 
+         &board[1][0], &board[1][1], &board[1][2], 
+         &board[2][0], &board[2][1], &board[2][2]);
   print_board(board);
 }
 
