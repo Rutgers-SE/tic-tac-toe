@@ -42,9 +42,9 @@ int main(int argc, char **argv) {
         printf("Error notifying Players\n");
       }
     }
-
+    
     else if (strcmp(command, "leave") == 0) {
-      /* NOTE: handle client leaving operatipopn */
+      /* NOTE: handle client leaving operation */
     }
 
     else if (!strcmp(command, "move")) {
@@ -59,17 +59,14 @@ int main(int argc, char **argv) {
       board_place_piece(match->board, motion.row, motion.column, X); /* place the piece on the board */
 
 
-      printf("Response: %s\n", response);
-
       /* start packing the response */
 
       /* convert the board to a string */
       char board[17];
-      board_to_string(board, match_index, match->board);
+      board_to_string(board, match_index, match->board); /* convert the board to a string */
+      sprintf(response, "ok %s t1", board);              /* put the board in the response */
 
-
-      sprintf(response, "ok %s t1", board);
-
+      printf("Response: %s\n", response);
 
       if (sendto(gs.cp.descriptor, response, strlen(response), 0, (SA *)&client_in, sizeof(client_in)) < 0) {
         perror("There was an error sending the information to the client");
