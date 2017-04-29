@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
       pack_match_id(command, client_state.match_index); /* append the match index to the command string */
 
       /* attempt to join match */
-      if (sendto(cp.descriptor, command, command_len, 0, (SA *)&cp.info,
+      if (sendto(cp.descriptor, command, strlen(command), 0, (SA *)&cp.info,
                  sizeof(cp.info)) < 0) {
         perror("Error Sending Command");
         exit(1);

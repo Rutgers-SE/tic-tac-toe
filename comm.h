@@ -75,16 +75,16 @@ int gs_join(struct GameServer *gs, SAI client, int *gi);
 int gs_leave(struct GameServer *gs, SAI client, int gi);
 int gs_move(struct GameServer *gs, SAI client, int gi);
 
-int board_to_string(char *output, int match_index, int board[3][3]);
+int board_to_string(char *output, int match_index, int (*board)[3]);
 void board_print_from_string(char *);
 
-int determine_winner(int board[3][3]);
-void print_board(int board[3][3]);
+int determine_winner(int (*board)[3]);
+void print_board(int (*board)[3]);
 void print_repl(int mode);
 void readstr(char *buf);
 int parse_coords(char *buf, int *row, int *col);
 int parse_motion_command(char *cmd, int *gid, int *pid, int *row, int *col);
-int board_place_piece(int board[3][3], int row, int col, int value);
+int board_place_piece(int (*board)[3], int row, int col, int value);
 int mch_add_player(struct Match *match, SAI pin);
 
 int notify_players(struct GameServer *gs, int match_index);

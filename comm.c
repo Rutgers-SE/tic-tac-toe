@@ -85,7 +85,7 @@ int notify_players(struct GameServer *gs, int match_index) {
 /**
  * Send board state through the wire
  */
-int board_to_string(char *output, int match_index, int board[3][3]) {
+int board_to_string(char *output, int match_index, int (*board)[3]) {
   sprintf(output, "m%i b%d-%d-%d-%d-%d-%d-%d-%d-%d ", match_index, board[0][0],
           board[0][1], board[0][2], board[1][0], board[1][1], board[1][2],
           board[2][0], board[2][1], board[2][2]);
@@ -161,7 +161,7 @@ char character_representation(int c) {
   return ' ';
 }
 
-int determine_winner(int board[3][3]) {
+int determine_winner(int (*board)[3]) {
   // check rows
   // checking columns
   int row;
@@ -180,7 +180,7 @@ int determine_winner(int board[3][3]) {
   return _;
 }
 
-void print_board(int board[3][3]) {
+void print_board(int (*board)[3]) {
   printf("    0   1   2  \n");
   printf("  +---+---+---+\n");
   int row, col;
@@ -214,7 +214,7 @@ void print_repl(int mode) {
  * Returns  0 if piece placed.
  * Returns -1 if invalid arguments.
  */
-int board_place_piece(int board[3][3], int row, int col, int value) {
+int board_place_piece(int (*board)[3], int row, int col, int value) {
   if (!(value == X || value == O) ||
       !(0 <= col && col <= 2 && 0 <= row && row <= 2)) {
     return -1;
