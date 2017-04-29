@@ -356,6 +356,10 @@ void com_parse_motion(char *response, struct Motion *motion) {
   sscanf(dest, "%i-%i", &(motion->row), &(motion->column));
 }
 
+
+/**
+ * IMPORTANT: make sure your destination is clean
+ */
 void com_parse_char_command(char *dest, char *src, char tag) {
   int start = 0;
   while (!(src[start] == ' ' && src[start + 1] == tag) && start + 1 < CMDLEN)
@@ -365,4 +369,5 @@ void com_parse_char_command(char *dest, char *src, char tag) {
   while (src[end] != ' ' && src[end] != '\0' && end < CMDLEN)
     end++;
   strncpy(dest, src + start, end - start);
+  dest[end-start] = 0;
 }

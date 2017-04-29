@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
       com_parse_motion(request, &motion);
 
       /* place the piece on the board */
-      board_place_piece(match->board, motion.row, motion.column, X);
+      board_place_piece(match->board, motion.row, motion.column, match->whos_turn);
       mch_toggle_turn(match);
 
 
