@@ -37,7 +37,16 @@ int main(int argc, char **argv) {
     if (strcmp(command, "join") == 0) {
       /* handle players trying to join a match */
       int match_index;
-      gs_join(&gs, client_in, &match_index);
+      if (gs_join(&gs, client_in, &match_index)) {
+        /* failed to join the match: server probably full */
+        char *response = "bad iserver-full";
+        if (sendto(gs.cp.descriptor, response, strlen(response), 0,
+                   (SA *)&client_in, sizeof(client_in)) < 0 ) {
+          /* there was an error sending error message. LOL */
+          printf("Error sending message to client.");
+        }
+        continue;
+      }
       if (notify_players(&gs, match_index) < 0) {
         printf("Error notifying Players\n");
       }
@@ -52,11 +61,30 @@ int main(int argc, char **argv) {
 
       /* parse the incoming response */
       char response[CMDLEN];
-      int match_index = com_parse_match_index(request, CMDLEN); /* get the match id */
+      bzero(response, CMDLEN);
+      /* get the match id */
+      int match_index = com_parse_match_index(request, CMDLEN);
+
+      /* get the match structure from the the game server */
+      struct Match *match = gs.matches + match_index;
+
+      /* determine if the player trying to make the move is authorized to do so */
+      if (mch_players_turn(match, client_in.sin_port)) {
+        /* the player trying to make the move is not allowed to at the time. */
+        sprintf(response, "bad inot-your-turn");
+        if (sendto(gs.cp.descriptor, response, strlen(response), 0,
+                   (SA *)&client_in, sizeof(client_in)) < 0) {
+          perror("There was an error sending the message back to the player");
+        }
+        continue;
+      }
+
+      /* get the clients attempted motion */
       struct Motion motion;
-      com_parse_motion(request, &motion); /* get the clients attempted motion */
-      struct Match *match = gs.matches + match_index; /* get the match structure from the the game server */
-      board_place_piece(match->board, motion.row, motion.column, X); /* place the piece on the board */
+      com_parse_motion(request, &motion);
+
+      /* place the piece on the board */
+      board_place_piece(match->board, motion.row, motion.column, X);
       mch_toggle_turn(match);
 
 
@@ -69,9 +97,14 @@ int main(int argc, char **argv) {
 
       printf("Response: %s\n", response);
 
-      if (sendto(gs.cp.descriptor, response, strlen(response), 0, (SA *)&client_in, sizeof(client_in)) < 0) {
-        perror("There was an error sending the information to the client");
-        continue;
+      /* sending the response to the players */
+      if (sendto(gs.cp.descriptor, response, strlen(response), 0,
+                 (SA *)&match->player_one.info, sizeof(match->player_one.info)) < 0) {
+        perror("There was an error sending the information to player one");
+      }
+      if (sendto(gs.cp.descriptor, response, strlen(response), 0,
+                 (SA *)&match->player_two.info, sizeof(match->player_two.info)) < 0) {
+        perror("There was an error sending the information to player two");
       }
     }
 

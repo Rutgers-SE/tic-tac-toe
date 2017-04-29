@@ -48,6 +48,11 @@ int main(int argc, char **argv) {
     bzero(command, CMDLEN); /* reset command to 0s */
     readline(command);      /* read user line */
     int command_len = strlen(command);
+    if (command_len == 0) {
+      /* there was no command supplied, continue */
+      printf("Please supply a demand.\n");
+      continue;
+    }
 
     char operator[CMDLEN];
     com_parse_command(operator, command);
@@ -98,7 +103,7 @@ int main(int argc, char **argv) {
 
       pack_match_id(command, client_state.match_index); /* append the match index to the command string */
 
-      /* attempt to join match */
+      /* attempt to send move command */
       if (sendto(cp.descriptor, command, strlen(command), 0, (SA *)&cp.info,
                  sizeof(cp.info)) < 0) {
         perror("Error Sending Command");
@@ -133,6 +138,8 @@ int main(int argc, char **argv) {
         printf("Parsed board: %s\n", board_string);
         board_print_from_string(board_string);
 
+      } else {
+        printf("Not your turn\n");
       }
     }
     else {

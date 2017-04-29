@@ -2,13 +2,15 @@
 
   *not complete*
 
-  |-----+-------|
-  | Tag | For   |
-  |-----+-------|
-  | m   | match |
-  | b   | board |
-  | p   | play  |
-  | t   | turn  |
+  |-----+-------------|
+  | Tag | For         |
+  |-----+-------------|
+  | m   | match       |
+  | b   | board       |
+  | p   | play        |
+  | t   | turn        |
+  | i   | information |
+  |-----+-------------|
 
   |----------+-----------+-----------------------------------|
   | Client   | Direction | Server                            |

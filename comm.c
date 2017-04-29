@@ -22,6 +22,21 @@ struct ConPair create_udp_socket(int port) {
   return cp;
 }
 
+/**
+ * Return 1 is its not the players turn
+ */
+int mch_players_turn(struct Match *match, int port) {
+  if (match->whos_turn == 1)
+    if (match->player_one.info.sin_port == port)
+      return 0;
+
+  if (match->whos_turn == 2)
+    if (match->player_two.info.sin_port == port)
+      return 0;
+
+  return 1;
+}
+
 int mch_full(struct Match *match) {
   // Return 1 if both players are ready, else return 0
   return (match->player_one.status == P_READY) &&
@@ -66,26 +81,31 @@ int notify_players(struct GameServer *gs, int match_index) {
   /* Yeah, I'm not touching this */
   char response[256];
   int offset = 0;
-  offset = resp_ok(response); /* make the response ok.... BAD */
+  offset = resp_ok(response); /* make the response ok.... or bad */
   offset = offset + board_to_string(
                         response + offset, match_index,
                         gs->matches[match_index].board); /* write the board */
   int cur_off = offset;
   if (gs->matches[match_index].player_one.status == P_READY) {
-    if (gs->matches[match_index].whos_turn == 1)
+    if (gs->matches[match_index].whos_turn == 1) {
       strcpy(response + cur_off, "t1;");
-    else if (gs->matches[match_index].whos_turn == 2)
+    }
+    else if (gs->matches[match_index].whos_turn == 2) {
       strcpy(response + cur_off, "t0;");
+    }
     printf("Sending: %s\n", response);
     sendto(gs->cp.descriptor, response, strlen(response), 0,
            (SA *)&(gs->matches[match_index].player_one.info),
            sizeof(gs->matches[match_index].player_one.info));
   }
   if (gs->matches[match_index].player_two.status == P_READY) {
-    if (gs->matches[match_index].whos_turn == 1)
+    /* send if the player is ready */
+    if (gs->matches[match_index].whos_turn == 1) {
       strcpy(response + cur_off, "t0;");
-    else if (gs->matches[match_index].whos_turn == 2)
+    }
+    else if (gs->matches[match_index].whos_turn == 2) {
       strcpy(response + cur_off, "t1;");
+    }
     printf("Sending: %s\n", response);
     sendto(gs->cp.descriptor, response, strlen(response), 0,
            (SA *)&(gs->matches[match_index].player_two.info),
@@ -302,7 +322,7 @@ int com_parse_command(char *command, char *request) {
   char req[CMDLEN];
   char *com;
   memcpy(req, request, CMDLEN);
-  com = strtok(req, " ;");
+  com = strtok(req, " ;\n");    /* NOTE: this is not thread safe */
   memcpy(command, com, strlen(com));
   command[strlen(com)] = 0;
   return 0;
