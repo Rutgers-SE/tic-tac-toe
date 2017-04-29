@@ -28,6 +28,18 @@ int mch_full(struct Match *match) {
          (match->player_two.status == P_READY);
 }
 
+int mch_toggle_turn(struct Match *match) {
+  if (match->whos_turn == 1) {
+    match->whos_turn=2;
+    return 0;
+  }
+  else if (match->whos_turn == 2) {
+    match->whos_turn=1;
+    return 0;
+  }
+  return 1;
+}
+
 struct Match *get_pending_or_empty_match(struct GameServer *gs, int *gi) {
   int i;
   for (i = 0; i < 256; i++) {
@@ -271,17 +283,7 @@ int parse_coords(char *buf, int *row, int *col) {
 
 void com_parse_board_string(char *response, char *board_string) {
   /* NOTE: this can be refactored */
-  int start = 0;
-  for (; (response[start] != ' ' || response[start + 1] != 'b') &&
-         start + 1 < CMDLEN;
-       start++)
-    ;
-  start += 2;
-  int end = start;
-  for (; response[end] != ' ' && end < CMDLEN; end++)
-    ;
-  strncpy(board_string, response + start, end - start);
-  board_string[end - start] = '\0';
+  com_parse_char_command(board_string, response, 'b');
 }
 
 /**
@@ -291,14 +293,6 @@ void com_parse_board_string(char *response, char *board_string) {
 int com_parse_match_index(char *response, int len) {
   char match_index_string[CMDLEN];
   com_parse_char_command(match_index_string, response, 'm');
-  /* int start = 0; */
-  /* while(response[start] != ' ' && response[start + 1] != 'm' && start+1 < len) */
-  /*   start++; */
-  /* start += 2; */
-  /* int end = start; */
-  /* while (response[end] != ' ' && end < len) */
-  /*   end++; */
-  /* strncpy(match_index_string, response + start, end-start); */
   return atoi(match_index_string);
 }
 

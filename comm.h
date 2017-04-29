@@ -54,6 +54,7 @@ struct Match {
   struct Player player_one;
   struct Player player_two;
   int whos_turn;
+  int rounds;
   int status;
 };
 
@@ -87,6 +88,7 @@ int parse_coords(char *buf, int *row, int *col);
 int parse_motion_command(char *cmd, int *gid, int *pid, int *row, int *col);
 int board_place_piece(int (*board)[3], int row, int col, int value);
 int mch_add_player(struct Match *match, SAI pin);
+int mch_toggle_turn(struct Match *match);
 
 int notify_players(struct GameServer *gs, int match_index);
 

@@ -1,4 +1,4 @@
-CC = clang
+CC = gcc
 CFLAGS = -g
 
 CL_OBJECTS = cl.o comm.o

@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
         printf("Error notifying Players\n");
       }
     }
-    
+
     else if (strcmp(command, "leave") == 0) {
       /* NOTE: handle client leaving operation */
     }
@@ -50,13 +50,14 @@ int main(int argc, char **argv) {
     else if (!strcmp(command, "move")) {
       /* handle client motion command */
 
-      // parse the incoming resposne
+      /* parse the incoming response */
       char response[CMDLEN];
       int match_index = com_parse_match_index(request, CMDLEN); /* get the match id */
       struct Motion motion;
       com_parse_motion(request, &motion); /* get the clients attempted motion */
       struct Match *match = gs.matches + match_index; /* get the match structure from the the game server */
       board_place_piece(match->board, motion.row, motion.column, X); /* place the piece on the board */
+      mch_toggle_turn(match);
 
 
       /* start packing the response */
