@@ -19,7 +19,8 @@
 
 #define M_EMPTY 0
 #define M_PENDING 1
-#define M_INPROGRESS 2
+#define M_READY 2
+#define M_INPROGRESS 4
 
 // socket stuff
 #define SAI struct sockaddr_in

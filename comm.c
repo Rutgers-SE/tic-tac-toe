@@ -112,7 +112,7 @@ int gs_join(struct GameServer *gs, SAI client, int *gi) {
     return 1;
   // check match status
   if (mch_full(match)) {
-    match->status = M_PENDING;
+    match->status = M_READY;
     match->whos_turn = 1;
   }
 
