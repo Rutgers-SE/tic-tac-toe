@@ -285,14 +285,15 @@ void com_parse_board_string(char *response, char *board_string) {
  */
 int com_parse_match_index(char *response, int len) {
   char match_index_string[CMDLEN];
-  int start = 0;
-  while(response[start] != ' ' && response[start + 1] != 'm' && start+1 < len)
-    start++;
-  start += 2;
-  int end = start;
-  while (response[end] != ' ' && end < len)
-    end++;
-  strncpy(match_index_string, response + start, end-start);
+  com_parse_char_command(match_index_string, response, 'm');
+  /* int start = 0; */
+  /* while(response[start] != ' ' && response[start + 1] != 'm' && start+1 < len) */
+  /*   start++; */
+  /* start += 2; */
+  /* int end = start; */
+  /* while (response[end] != ' ' && end < len) */
+  /*   end++; */
+  /* strncpy(match_index_string, response + start, end-start); */
   return atoi(match_index_string);
 }
 
@@ -332,13 +333,14 @@ int com_response_ok(char *response, unsigned int len) {
  */
 void com_parse_motion(char *response, struct Motion *motion) {
   char dest[3];        /* the space allocation is 3 because #-# */
-  com_parse_char_command(dest, response, 'p');
+  com_parse_char_command(dest, response, 'p'); /* p for play */
   sscanf(dest, "%i-%i", &(motion->row), &(motion->column));
 }
 
+
 void com_parse_char_command(char *dest, char *src, char tag) {
   int start = 0;
-  while (src[start] != ' ' && src[start + 1] != tag && start+1 < CMDLEN)
+  while (!(src[start]==' ' && src[start+1]==tag) && start+1 < CMDLEN)
     start++;
   start += 2;
   int end = start;

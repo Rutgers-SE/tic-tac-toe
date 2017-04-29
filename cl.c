@@ -35,6 +35,7 @@ int main(int argc, char **argv) {
   /* connect to the udp socket */
   struct ConPair cp = create_udp_socket(port);
   struct client_state_t client_state;
+  /* the default index will be -1. this is because the client is not connected to a match */
   client_state.match_index = -1;
   char client_state_string[CMDLEN];
 
