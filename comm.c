@@ -245,8 +245,10 @@ int determine_winner(int (*board)[3]) {
   }
 
   // checking diagonals
-  if ((board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[2][2] == board[0][0]) ||
-      (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[2][0] == board[0][2])) {
+  if (((board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[2][2] == board[0][0]) ||
+       (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[2][0] == board[0][2])) &&
+      board[0][0] != _ &&
+      board[2][0] != _) {
     return board[1][1];
   }
 
