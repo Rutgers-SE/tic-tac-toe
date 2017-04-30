@@ -37,14 +37,12 @@ void cp_send(int descriptor, char *response, SA *info) {
  * Return 1 is its not the players turn
  */
 int mch_players_turn(struct Match *match, int port) {
-  if (match->whos_turn == 1)
-    if (match->player_one.info.sin_port == port)
-      return 0;
-
-  if (match->whos_turn == 2)
-    if (match->player_two.info.sin_port == port)
-      return 0;
-
+  if (match->whos_turn == 1 && match->player_one.info.sin_port == port) {
+    return 0;
+  }
+  if (match->whos_turn == 2 && match->player_two.info.sin_port == port) {
+    return 0;
+  }
   return 1;
 }
 
@@ -81,12 +79,12 @@ int mch_leave(struct Match *match, int port, int *player_who_left) {
 int mch_toggle_turn(struct Match *match) {
   if (match->whos_turn == X) {
     match->whos_turn = O;
-    return 0; /* no error */
   } else if (match->whos_turn == O) {
     match->whos_turn = X;
-    return 0; /* no error */
+  } else {
+    return 1; /* error */
   }
-  return 1; /* error */
+  return 0; /* no error */
 }
 
 struct Match *get_pending_or_empty_match(struct GameServer *gs, int *gi) {
@@ -226,7 +224,7 @@ int determine_winner(int (*board)[3]) {
     if (board[i][0] & board[i][1] & board[i][2]) {
       return board[i][0];
     }
-    // checking columns
+    // check columns
     if (board[0][i] & board[1][i] & board[2][i]) {
       return board[0][i];
     }
