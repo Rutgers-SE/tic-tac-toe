@@ -27,8 +27,8 @@ struct ConPair create_udp_socket(int port) {
  * response must be a valid string terminated by a NULL character
  */
 void cp_send(int descriptor, char *response, SA *info) {
-  if (sendto(descriptor, response, strlen(response), 0,
-             info, sizeof(*info)) < 0) {
+  if (sendto(descriptor, response, strlen(response), 0, info, sizeof(*info)) <
+      0) {
     perror("There was an error sending the information to player one");
   }
 }
@@ -65,7 +65,7 @@ int mch_leave(struct Match *match, int port, int *player_who_left) {
     match->status = M_PENDING;
     bzero(match->board, sizeof(match->board));
     bzero(&match->player_one, sizeof(match->player_one));
-    return 0;                   /* player was removed */
+    return 0; /* player was removed */
   }
   if (match->player_two.info.sin_port == port) {
     *player_who_left = 2;
@@ -75,20 +75,18 @@ int mch_leave(struct Match *match, int port, int *player_who_left) {
     return 0;
   }
 
-
-  return 1;                     /* the player wasnt even in the match... weird */
+  return 1; /* the player wasnt even in the match... weird */
 }
 
 int mch_toggle_turn(struct Match *match) {
   if (match->whos_turn == X) {
-    match->whos_turn=O;
-    return 0;                   /* no error */
+    match->whos_turn = O;
+    return 0; /* no error */
+  } else if (match->whos_turn == O) {
+    match->whos_turn = X;
+    return 0; /* no error */
   }
-  else if (match->whos_turn == O) {
-    match->whos_turn=X;
-    return 0;                   /* no error */
-  }
-  return 1;                     /* error */
+  return 1; /* error */
 }
 
 struct Match *get_pending_or_empty_match(struct GameServer *gs, int *gi) {
@@ -125,8 +123,7 @@ int notify_players(struct GameServer *gs, int match_index) {
   if (gs->matches[match_index].player_one.status == P_READY) {
     if (gs->matches[match_index].whos_turn == 1) {
       strcpy(response + cur_off, "t1;");
-    }
-    else if (gs->matches[match_index].whos_turn == 2) {
+    } else if (gs->matches[match_index].whos_turn == 2) {
       strcpy(response + cur_off, "t0;");
     }
     printf("Sending: %s\n", response);
@@ -138,8 +135,7 @@ int notify_players(struct GameServer *gs, int match_index) {
     /* send if the player is ready */
     if (gs->matches[match_index].whos_turn == 1) {
       strcpy(response + cur_off, "t0;");
-    }
-    else if (gs->matches[match_index].whos_turn == 2) {
+    } else if (gs->matches[match_index].whos_turn == 2) {
       strcpy(response + cur_off, "t1;");
     }
     printf("Sending: %s\n", response);
@@ -185,7 +181,6 @@ int gs_join(struct GameServer *gs, SAI client, int *gi) {
   return 0;
 }
 
-
 void init_game_server(struct GameServer *gs) { bzero(gs, sizeof(*gs)); }
 
 int mch_add_player(struct Match *match, SAI pin) {
@@ -229,15 +224,11 @@ int determine_winner(int (*board)[3]) {
   // checking columns
   int row;
   for (row = 0; row < 3; row++) {
-    if (((board[row][0] == board[row][1] &&
-          board[row][1] == board[row][2] &&
+    if (((board[row][0] == board[row][1] && board[row][1] == board[row][2] &&
           board[row][2] == board[row][0]) ||
-         (board[0][row] == board[1][row] &&
-          board[1][row] == board[2][row] &&
+         (board[0][row] == board[1][row] && board[1][row] == board[2][row] &&
           board[2][row] == board[0][row])) &&
-        board[row][0] != _ &&
-        board[row][1] != _ &&
-        board[row][2] != _) {
+        board[row][0] != _ && board[row][1] != _ && board[row][2] != _) {
       printf("Col %i%i%i\n", board[row][0], board[row][1], board[row][2]);
       printf("Row %i%i%i\n", board[0][row], board[1][row], board[2][row]);
       return board[row][0];
@@ -245,10 +236,11 @@ int determine_winner(int (*board)[3]) {
   }
 
   // checking diagonals
-  if (((board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[2][2] == board[0][0]) ||
-       (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[2][0] == board[0][2])) &&
-      board[0][0] != _ &&
-      board[2][0] != _) {
+  if (((board[0][0] == board[1][1] && board[1][1] == board[2][2] &&
+        board[2][2] == board[0][0]) ||
+       (board[0][2] == board[1][1] && board[1][1] == board[2][0] &&
+        board[2][0] == board[0][2])) &&
+      board[0][0] != _ && board[2][0] != _) {
     return board[1][1];
   }
 
@@ -346,12 +338,12 @@ int parse_coords(char *buf, int *row, int *col) {
 int com_parse_info_string(char *response, char *message) {
   char raw_message[CMDLEN];
   if (com_parse_char_command(raw_message, response, 'i')) {
-    return 1;                   /* there is no info string */
+    return 1; /* there is no info string */
   }
 
   /* replace the dashes with spaces */
   unsigned long i;
-  for (i=0; i < strlen(raw_message); i++) {
+  for (i = 0; i < strlen(raw_message); i++) {
     if (raw_message[i] == '-') {
       message[i] = ' ';
     } else {
@@ -382,7 +374,7 @@ int com_parse_command(char *command, char *request) {
   char req[CMDLEN];
   char *com;
   memcpy(req, request, CMDLEN);
-  com = strtok(req, " ;\n");    /* NOTE: this is not thread safe */
+  com = strtok(req, " ;\n"); /* NOTE: this is not thread safe */
   memcpy(command, com, strlen(com));
   command[strlen(com)] = 0;
   return 0;
@@ -429,7 +421,6 @@ void com_parse_motion(char *response, struct Motion *motion) {
   sscanf(dest, "%i-%i", &(motion->row), &(motion->column));
 }
 
-
 /**
  * IMPORTANT: make sure your destination is clean
  */
@@ -438,11 +429,12 @@ int com_parse_char_command(char *dest, char *src, char tag) {
   while (!(src[start] == ' ' && src[start + 1] == tag) && start + 1 < CMDLEN)
     start++;
   start += 2;
-  if (start == CMDLEN + 1) return 1; /* we could not find anything */
+  if (start == CMDLEN + 1)
+    return 1; /* we could not find anything */
   int end = start;
   while (src[end] != ' ' && src[end] != '\0' && end < CMDLEN)
     end++;
   strncpy(dest, src + start, end - start);
-  dest[end-start] = 0;
+  dest[end - start] = 0;
   return 0;
 }
