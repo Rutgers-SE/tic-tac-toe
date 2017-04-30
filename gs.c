@@ -54,6 +54,35 @@ int main(int argc, char **argv) {
 
     else if (strcmp(command, "leave") == 0) {
       /* NOTE: handle client leaving operation */
+      /* parse the incoming response */
+      char response[CMDLEN];
+      bzero(response, CMDLEN);
+
+      /* get the match id */
+      int match_index = com_parse_match_index(request, CMDLEN);
+      int player_who_left;
+      struct Match *match = gs.matches + match_index;
+      if (mch_leave(match, client_in.sin_port, &player_who_left)) {
+        sprintf(response, "bad iyou-are-not-even-a-player...-weirdo");
+        cp_send(gs.cp.descriptor, response, (SA *)&client_in);
+      } else {
+        sprintf(response, "ok m-1 iNICE-you-are-a-quiter");
+        cp_send(gs.cp.descriptor, response, (SA *)&client_in);
+
+        /* notify other player */
+        if (player_who_left == 1) {
+          /* notify player 2 */
+          if (match->player_two.status == P_READY) {
+            cp_send(gs.cp.descriptor, "ok ithe-other-player-has-left", (SA *)&match->player_two.info);
+          }
+        } else {
+          /* notify player 1 */
+          if (match->player_one.status == P_READY) {
+            cp_send(gs.cp.descriptor, "ok ithe-other-player-has-left", (SA *)&match->player_one.info);
+          }
+        }
+      }
+      continue;
     }
 
     else if (!strcmp(command, "move")) {

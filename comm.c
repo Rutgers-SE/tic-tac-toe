@@ -54,6 +54,31 @@ int mch_full(struct Match *match) {
          (match->player_two.status == P_READY);
 }
 
+/**
+ * Return 1 on error, 0 on success
+ * Remember to make a copy of the client information since this function
+ * destroys the client information
+ */
+int mch_leave(struct Match *match, int port, int *player_who_left) {
+  if (match->player_one.info.sin_port == port) {
+    *player_who_left = 1;
+    match->status = M_PENDING;
+    bzero(match->board, sizeof(match->board));
+    bzero(&match->player_one, sizeof(match->player_one));
+    return 0;                   /* player was removed */
+  }
+  if (match->player_two.info.sin_port == port) {
+    *player_who_left = 2;
+    match->status = M_PENDING;
+    bzero(match->board, sizeof(match->board));
+    bzero(&match->player_two, sizeof(match->player_two));
+    return 0;
+  }
+
+
+  return 1;                     /* the player wasnt even in the match... weird */
+}
+
 int mch_toggle_turn(struct Match *match) {
   if (match->whos_turn == X) {
     match->whos_turn=O;
@@ -160,10 +185,6 @@ int gs_join(struct GameServer *gs, SAI client, int *gi) {
   return 0;
 }
 
-/**
- * Return -1 on error, 0 on success
- */
-int gs_leave(struct GameServer *gs, SAI client, int gi) { return 0; }
 
 void init_game_server(struct GameServer *gs) { bzero(gs, sizeof(*gs)); }
 

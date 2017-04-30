@@ -135,19 +135,6 @@ int main(int argc, char **argv) {
       }
 
       if (com_response_ok(response, CMDLEN)) {
-        /* handle the case when accepted into the match */
-        /* printf("%s\n", response); */
-
-        /* client_state.match_index = com_parse_match_index(response, CMDLEN); */
-        /* printf("match index: %i\n", client_state.match_index); */
-
-        /* client_state_to_str(client_state, client_state_string); */
-        /* printf("TTT:[%s]< The command was successful\n", client_state_string); */
-
-        /* char board_string[CMDLEN]; */
-        /* com_parse_board_string(response, board_string); */
-        /* printf("Parsed board: %s\n", board_string); */
-        /* board_print_from_string(board_string); */
 
         print_payload_and_set_state(response, &client_state);
 
@@ -158,6 +145,7 @@ int main(int argc, char **argv) {
         printf("TTT:[]< Could not connect to match\n");
       }
     }
+
     else if (strcmp(operator, "move") == 0) {
 
       pack_match_id(command, client_state.match_index); /* append the match index to the command string */
@@ -183,26 +171,41 @@ int main(int argc, char **argv) {
       }
 
       if (com_response_ok(response, CMDLEN)) {
-        /* handle the case when accepted into the match */
-        /* printf("%s\n", response); */
-
-        /* client_state.match_index = com_parse_match_index(response, CMDLEN); */
-        /* printf("match index: %i\n", client_state.match_index); */
-
-        /* client_state_to_str(client_state, client_state_string); */
-        /* printf("TTT:[%s]< The command was successful\n", client_state_string); */
-
-        /* char board_string[CMDLEN]; */
-        /* bzero(board_string, CMDLEN); */
-        /* com_parse_board_string(response, board_string); */
-        /* printf("Parsed board: %s\n", board_string); */
-        /* board_print_from_string(board_string); */
 
         print_payload_and_set_state(response, &client_state);
       } else {
         printf("Not your turn\n");
       }
     }
+
+    else if (strcmp(operator, "leave") == 0) {
+      char response[CMDLEN];
+      bzero(response, CMDLEN);
+      SAI client_in;
+      socklen_t client_len = sizeof(client_in);
+
+      pack_match_id(command, client_state.match_index);
+      if (sendto(cp.descriptor, command, strlen(command), 0, (SA *)&cp.info,
+                 sizeof(cp.info)) < 0) {
+        perror("Error sending command");
+        exit(1);
+      }
+
+      if (recvfrom(cp.descriptor, response, CMDLEN, 0, (SA *)&client_in,
+                   &client_len) < 0) {
+        perror("Error reading from server");
+        exit(1);
+      }
+
+      if (com_response_ok(response, CMDLEN)) {
+        print_payload_and_set_state(response, &client_state);
+      } else {
+        printf("You aren't in a match\n");
+      }
+
+
+    }
+
     else {
       printf("ERR: >> unsupported command <<\n");
     }
