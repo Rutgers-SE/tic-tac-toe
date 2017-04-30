@@ -220,27 +220,21 @@ char character_representation(int c) {
 }
 
 int determine_winner(int (*board)[3]) {
-  // check rows
-  // checking columns
-  int row;
-  for (row = 0; row < 3; row++) {
-    if (((board[row][0] == board[row][1] && board[row][1] == board[row][2] &&
-          board[row][2] == board[row][0]) ||
-         (board[0][row] == board[1][row] && board[1][row] == board[2][row] &&
-          board[2][row] == board[0][row])) &&
-        board[row][0] != _ && board[row][1] != _ && board[row][2] != _) {
-      printf("Col %i%i%i\n", board[row][0], board[row][1], board[row][2]);
-      printf("Row %i%i%i\n", board[0][row], board[1][row], board[2][row]);
-      return board[row][0];
+  int i;
+  for(i = 0; i < 3; i++) {
+    // check rows
+    if((board[i][0] == board[i][1]) && (board[i][1] == board[i][2])) {
+      return board[i][0];
+    }
+    // checking columns
+    if((board[0][i] == board[1][i]) && (board[1][i] == board[2][i])) {
+      return board[0][i];
     }
   }
 
   // checking diagonals
-  if (((board[0][0] == board[1][1] && board[1][1] == board[2][2] &&
-        board[2][2] == board[0][0]) ||
-       (board[0][2] == board[1][1] && board[1][1] == board[2][0] &&
-        board[2][0] == board[0][2])) &&
-      board[0][0] != _ && board[2][0] != _) {
+  if ((board[0][0] == board[1][1]) && (board[1][1] == board[2][2]) ||
+      (board[0][2] == board[1][1]) && (board[1][1] == board[2][0])) {
     return board[1][1];
   }
 
