@@ -114,7 +114,12 @@ int main(int argc, char **argv) {
       com_parse_motion(request, &motion);
 
       /* place the piece on the board */
-      board_place_piece(match->board, motion.row, motion.column, match->whos_turn);
+      if (board_place_piece(match->board, motion.row, motion.column, match->whos_turn)) {
+        /* space already taken */
+        sprintf(response, "bad ibad-move m%i t1", match_index);
+        cp_send(gs.cp.descriptor, response, (SA *)&client_in);
+        continue;
+      }
       mch_toggle_turn(match);
 
       /* determine the winner */

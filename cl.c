@@ -13,8 +13,9 @@ struct client_state_t {
 };
 
 void print_payload_and_set_state(char *payload, struct client_state_t *cs) {
-  printf("%s\n", payload);
+  /* printf("%s\n", payload); */
   char board_string[17];
+  char info_string[CMDLEN];
   int turn;
   cs->match_index = com_parse_match_index(payload, strlen(payload));
   if (com_parse_board_string(payload, board_string) == 0) {
@@ -26,6 +27,9 @@ void print_payload_and_set_state(char *payload, struct client_state_t *cs) {
     } else {
       printf("NOT your turn\n");
     }
+  }
+  if (com_parse_info_string(payload, info_string) == 0) {
+    printf("%s\n", info_string);
   }
 }
 
@@ -174,7 +178,10 @@ int main(int argc, char **argv) {
 
         print_payload_and_set_state(response, &client_state);
       } else {
-        printf("Not your turn\n");
+        char info_string[CMDLEN];
+        if (com_parse_info_string(response, info_string) == 0) {
+          printf("%s\n", info_string);
+        }
       }
     }
 

@@ -75,6 +75,7 @@ int com_response_ok(char *, unsigned int);
 void com_parse_motion(char *response, struct Motion *motion);
 int com_parse_char_command(char *dest, char *src, char tag);
 int com_parse_turn(char *command, int *turn);
+int com_parse_info_string(char *response, char *message);
 
 int gs_join(struct GameServer *gs, SAI client, int *gi);
 int gs_leave(struct GameServer *gs, SAI client, int gi);

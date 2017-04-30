@@ -343,6 +343,25 @@ int parse_coords(char *buf, int *row, int *col) {
   return 0;
 }
 
+int com_parse_info_string(char *response, char *message) {
+  char raw_message[CMDLEN];
+  if (com_parse_char_command(raw_message, response, 'i')) {
+    return 1;                   /* there is no info string */
+  }
+
+  /* replace the dashes with spaces */
+  unsigned long i;
+  for (i=0; i < strlen(raw_message); i++) {
+    if (raw_message[i] == '-') {
+      message[i] = ' ';
+    } else {
+      message[i] = raw_message[i];
+    }
+  }
+
+  return 0;
+}
+
 int com_parse_board_string(char *response, char *board_string) {
   /* NOTE: this can be refactored */
   return com_parse_char_command(board_string, response, 'b');
