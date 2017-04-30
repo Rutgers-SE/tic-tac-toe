@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     FD_SET(0, &reads);
     FD_SET(cp.descriptor, &reads);
     struct timeval tv;
-    tv.tv_sec = 60;
+    tv.tv_sec = 600;
     tv.tv_usec = 0;
 
     /* print the prompt */

@@ -28,17 +28,18 @@
 
 
 
-#define NOTIFY_PLAYER(p1, num) if (gs->matches[match_index].p1.status == P_READY) { \
-    if (gs->matches[match_index].whos_turn == num) {                    \
-      strcpy(response + cur_off, "t1;");                                \
-    } else {                                                            \
-      strcpy(response + cur_off, "t0;");                                \
-    }                                                                   \
-    printf("Sending: %s\n", response);                                  \
-    sendto(gs->cp.descriptor, response, strlen(response), 0,            \
-           (SA *)&(gs->matches[match_index].p1.info),                   \
-           sizeof(gs->matches[match_index].p1.info));                   \
-  }                                                                     \
+#define NOTIFY_PLAYER(p1, num)                                \
+  if (gs->matches[match_index].p1.status == P_READY) {        \
+    if (gs->matches[match_index].whos_turn == num) {          \
+      strcpy(response + cur_off, "t1;");                      \
+    } else {                                                  \
+      strcpy(response + cur_off, "t0;");                      \
+    }                                                         \
+    printf("Sending: %s\n", response);                        \
+    sendto(gs->cp.descriptor, response, strlen(response), 0,  \
+           (SA *)&(gs->matches[match_index].p1.info),         \
+           sizeof(gs->matches[match_index].p1.info));         \
+  }                                                           \
 
 
 struct ConPair {
