@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
         bzero(board, 17);
 
         board_to_string(board, -1, match->board); /* convert the board to a string */
-        sprintf(win_response, "ok iyou-have-one %s", board);
+        sprintf(win_response, "ok iyou-have-won%s", board);
         sprintf(lose_response, "ok iyou-have-lost %s", board);
 
         /* handle the case of a winner */
