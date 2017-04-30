@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
         bzero(board, 17);
 
         /* convert the board to a string */
-        board_to_string(board, -1, match->board); 
+        board_to_string(board, -1, match->board);
         sprintf(win_response, "ok iyou-have-won %s", board);
         sprintf(lose_response, "ok iyou-have-lost %s", board);
 

@@ -15,6 +15,7 @@ void print_payload_and_set_state(char *payload, struct client_state_t *cs) {
   /* printf("%s\n", payload); */
   char board_string[17];
   char info_string[CMDLEN];
+  bzero(info_string, CMDLEN);
   int turn;
   cs->match_index = com_parse_match_index(payload, strlen(payload));
   if (com_parse_board_string(payload, board_string) == 0) {
