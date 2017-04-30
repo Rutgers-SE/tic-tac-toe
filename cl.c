@@ -7,14 +7,27 @@
 
 #include "comm.h"
 
-void print_payload(char *payload) {
-  char board_string[17];
-  com_parse_board_string(payload, board_string);
-}
 
 struct client_state_t {
   int match_index;
 };
+
+void print_payload_and_set_state(char *payload, struct client_state_t *cs) {
+  printf("%s\n", payload);
+  char board_string[17];
+  int turn;
+  cs->match_index = com_parse_match_index(payload, strlen(payload));
+  if (com_parse_board_string(payload, board_string) == 0) {
+    board_print_from_string(board_string);
+  }
+  if (com_parse_turn(payload, &turn) == 0) {
+    if (turn) {
+      printf("YOUR TURN\n");
+    } else {
+      printf("NOT your turn\n");
+    }
+  }
+}
 
 void client_state_to_str(struct client_state_t cs, char *buf) {
   sprintf(buf, "M=%i", cs.match_index);
@@ -81,7 +94,8 @@ int main(int argc, char **argv) {
                               &client_len) < 0) {
           perror("Could not read from server");
         }
-        printf("server: %s\n", message);
+        print_payload_and_set_state(message, &client_state);
+        /* printf("server: %s\n", message); */
         continue;
       }
     } else {
@@ -122,18 +136,20 @@ int main(int argc, char **argv) {
 
       if (com_response_ok(response, CMDLEN)) {
         /* handle the case when accepted into the match */
-        printf("%s\n", response);
+        /* printf("%s\n", response); */
 
-        client_state.match_index = com_parse_match_index(response, CMDLEN);
-        printf("match index: %i\n", client_state.match_index);
+        /* client_state.match_index = com_parse_match_index(response, CMDLEN); */
+        /* printf("match index: %i\n", client_state.match_index); */
 
-        client_state_to_str(client_state, client_state_string);
-        printf("TTT:[%s]< The command was successful\n", client_state_string);
+        /* client_state_to_str(client_state, client_state_string); */
+        /* printf("TTT:[%s]< The command was successful\n", client_state_string); */
 
-        char board_string[CMDLEN];
-        com_parse_board_string(response, board_string);
-        printf("Parsed board: %s\n", board_string);
-        board_print_from_string(board_string);
+        /* char board_string[CMDLEN]; */
+        /* com_parse_board_string(response, board_string); */
+        /* printf("Parsed board: %s\n", board_string); */
+        /* board_print_from_string(board_string); */
+
+        print_payload_and_set_state(response, &client_state);
 
       } else {
         /* Handle the case when you could not join a match */
@@ -168,20 +184,21 @@ int main(int argc, char **argv) {
 
       if (com_response_ok(response, CMDLEN)) {
         /* handle the case when accepted into the match */
-        printf("%s\n", response);
+        /* printf("%s\n", response); */
 
-        client_state.match_index = com_parse_match_index(response, CMDLEN);
-        printf("match index: %i\n", client_state.match_index);
+        /* client_state.match_index = com_parse_match_index(response, CMDLEN); */
+        /* printf("match index: %i\n", client_state.match_index); */
 
-        client_state_to_str(client_state, client_state_string);
-        printf("TTT:[%s]< The command was successful\n", client_state_string);
+        /* client_state_to_str(client_state, client_state_string); */
+        /* printf("TTT:[%s]< The command was successful\n", client_state_string); */
 
-        char board_string[CMDLEN];
-        bzero(board_string, CMDLEN);
-        com_parse_board_string(response, board_string);
-        printf("Parsed board: %s\n", board_string);
-        board_print_from_string(board_string);
+        /* char board_string[CMDLEN]; */
+        /* bzero(board_string, CMDLEN); */
+        /* com_parse_board_string(response, board_string); */
+        /* printf("Parsed board: %s\n", board_string); */
+        /* board_print_from_string(board_string); */
 
+        print_payload_and_set_state(response, &client_state);
       } else {
         printf("Not your turn\n");
       }

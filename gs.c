@@ -62,6 +62,7 @@ int main(int argc, char **argv) {
       /* parse the incoming response */
       char response[CMDLEN];
       bzero(response, CMDLEN);
+
       /* get the match id */
       int match_index = com_parse_match_index(request, CMDLEN);
 
@@ -87,24 +88,64 @@ int main(int argc, char **argv) {
       board_place_piece(match->board, motion.row, motion.column, match->whos_turn);
       mch_toggle_turn(match);
 
+      /* determine the winner */
+      int winner = determine_winner(match->board);
+      if (winner != _) {
+        /* there is a winner! */
+        /* setup the response */
+        char win_response[CMDLEN];
+        bzero(win_response, CMDLEN);
+        char lose_response[CMDLEN];
+        bzero(lose_response, CMDLEN);
+        char board[17];
+        bzero(board, 17);
 
-      /* start packing the response */
+        board_to_string(board, -1, match->board); /* convert the board to a string */
+        sprintf(win_response, "ok iyou-have-one %s", board);
+        sprintf(lose_response, "ok iyou-have-lost %s", board);
 
+        /* handle the case of a winner */
+        if (winner == 1) {
+          /* player 1 is the winner */
+          cp_send(gs.cp.descriptor, win_response, (SA*)&match->player_one.info);
+          cp_send(gs.cp.descriptor, lose_response, (SA*)&match->player_two.info);
+        } else {
+          /* player 2 is the winner */
+          cp_send(gs.cp.descriptor, win_response, (SA*)&match->player_two.info);
+          cp_send(gs.cp.descriptor, lose_response, (SA*)&match->player_one.info);
+        }
+
+
+        bzero(match, sizeof(*match)); /* remove players from match */
+
+        continue;
+      }
+
+
+      /* the case when there it no winner */
       /* convert the board to a string */
       char board[17];
+      bzero(board, 17);
       board_to_string(board, match_index, match->board); /* convert the board to a string */
-      sprintf(response, "ok %s t1", board);              /* put the board in the response */
+      sprintf(response, "ok %s ", board);              /* put the board in the response */
 
       printf("Response: %s\n", response);
 
+      char m_resp[CMDLEN], nm_resp[CMDLEN];
+      strcpy(m_resp, response);
+      strcpy(nm_resp, response);
+      sprintf(m_resp, "%s t1", m_resp);
+      sprintf(nm_resp, "%s t0", nm_resp);
+
       /* sending the response to the players */
-      if (sendto(gs.cp.descriptor, response, strlen(response), 0,
-                 (SA *)&match->player_one.info, sizeof(match->player_one.info)) < 0) {
-        perror("There was an error sending the information to player one");
-      }
-      if (sendto(gs.cp.descriptor, response, strlen(response), 0,
-                 (SA *)&match->player_two.info, sizeof(match->player_two.info)) < 0) {
-        perror("There was an error sending the information to player two");
+      if (match->whos_turn == 1) {
+        /* player 1's turn */
+        cp_send(gs.cp.descriptor, m_resp, (SA*)&match->player_one.info);
+        cp_send(gs.cp.descriptor, nm_resp, (SA*)&match->player_two.info);
+      } else {
+        /* player 2's turn */
+        cp_send(gs.cp.descriptor, m_resp, (SA*)&match->player_two.info);
+        cp_send(gs.cp.descriptor, nm_resp, (SA*)&match->player_one.info);
       }
     }
 

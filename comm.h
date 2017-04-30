@@ -31,6 +31,7 @@ struct ConPair {
   SAI info;
 };
 struct ConPair create_udp_socket(int port);
+void cp_send(int descriptor, char *response, SA *info);
 
 /////////////////////////////////////////////////////////////////
 // DEFINING STRUCTS
@@ -68,10 +69,12 @@ void init_board(B(board));
 char character_representation(int c);
 
 int com_parse_command(char *, char *);
-int com_parse_match_index(char *, int); void com_parse_board_string(char *, char *);
+int com_parse_match_index(char *, int);
+int com_parse_board_string(char *, char *);
 int com_response_ok(char *, unsigned int);
 void com_parse_motion(char *response, struct Motion *motion);
-void com_parse_char_command(char *dest, char *src, char tag);
+int com_parse_char_command(char *dest, char *src, char tag);
+int com_parse_turn(char *command, int *turn);
 
 int gs_join(struct GameServer *gs, SAI client, int *gi);
 int gs_leave(struct GameServer *gs, SAI client, int gi);

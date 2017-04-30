@@ -23,6 +23,17 @@ struct ConPair create_udp_socket(int port) {
 }
 
 /**
+ * preconditions:
+ * response must be a valid string terminated by a NULL character
+ */
+void cp_send(int descriptor, char *response, SA *info) {
+  if (sendto(descriptor, response, strlen(response), 0,
+             info, sizeof(*info)) < 0) {
+    perror("There was an error sending the information to player one");
+  }
+}
+
+/**
  * Return 1 is its not the players turn
  */
 int mch_players_turn(struct Match *match, int port) {
@@ -44,15 +55,15 @@ int mch_full(struct Match *match) {
 }
 
 int mch_toggle_turn(struct Match *match) {
-  if (match->whos_turn == 1) {
-    match->whos_turn=2;
-    return 0;
+  if (match->whos_turn == X) {
+    match->whos_turn=O;
+    return 0;                   /* no error */
   }
-  else if (match->whos_turn == 2) {
-    match->whos_turn=1;
-    return 0;
+  else if (match->whos_turn == O) {
+    match->whos_turn=X;
+    return 0;                   /* no error */
   }
-  return 1;
+  return 1;                     /* error */
 }
 
 struct Match *get_pending_or_empty_match(struct GameServer *gs, int *gi) {
@@ -197,17 +208,24 @@ int determine_winner(int (*board)[3]) {
   // checking columns
   int row;
   for (row = 0; row < 3; row++) {
-    if (((board[row][0] == board[row][1] && board[row][1] == board[row][2] &&
+    if (((board[row][0] == board[row][1] &&
+          board[row][1] == board[row][2] &&
           board[row][2] == board[row][0]) ||
-         (board[0][row] == board[1][row] && board[1][row] == board[2][row] &&
+         (board[0][row] == board[1][row] &&
+          board[1][row] == board[2][row] &&
           board[2][row] == board[0][row])) &&
-        board[row][0] != _) {
+        board[row][0] != _ &&
+        board[row][1] != _ &&
+        board[row][2] != _) {
+      printf("Col %i%i%i\n", board[row][0], board[row][1], board[row][2]);
+      printf("Row %i%i%i\n", board[0][row], board[1][row], board[2][row]);
       return board[row][0];
     }
   }
 
   // checking diagonals
-  if (board[0][0] == board[1][1] == board[2][2] || board[0][2] == board[1][1] == board[2][0]) {
+  if ((board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[2][2] == board[0][0]) ||
+      (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[2][0] == board[0][2])) {
     return board[1][1];
   }
 
@@ -302,9 +320,9 @@ int parse_coords(char *buf, int *row, int *col) {
   return 0;
 }
 
-void com_parse_board_string(char *response, char *board_string) {
+int com_parse_board_string(char *response, char *board_string) {
   /* NOTE: this can be refactored */
-  com_parse_char_command(board_string, response, 'b');
+  return com_parse_char_command(board_string, response, 'b');
 }
 
 /**
@@ -348,6 +366,19 @@ int com_response_ok(char *response, unsigned int len) {
 }
 
 /**
+ * return 1 if error
+ * return 0 if ok
+ */
+int com_parse_turn(char *command, int *turn) {
+  char turn_string[CMDLEN];
+  if (com_parse_char_command(turn_string, command, 't')) {
+    return 1;
+  }
+  *turn = atoi(turn_string);
+  return 0;
+}
+
+/**
  * Parses that command thooooo
  */
 void com_parse_motion(char *response, struct Motion *motion) {
@@ -360,14 +391,16 @@ void com_parse_motion(char *response, struct Motion *motion) {
 /**
  * IMPORTANT: make sure your destination is clean
  */
-void com_parse_char_command(char *dest, char *src, char tag) {
+int com_parse_char_command(char *dest, char *src, char tag) {
   int start = 0;
   while (!(src[start] == ' ' && src[start + 1] == tag) && start + 1 < CMDLEN)
     start++;
   start += 2;
+  if (start == CMDLEN + 1) return 1; /* we could not find anything */
   int end = start;
   while (src[end] != ' ' && src[end] != '\0' && end < CMDLEN)
     end++;
   strncpy(dest, src + start, end - start);
   dest[end-start] = 0;
+  return 0;
 }
