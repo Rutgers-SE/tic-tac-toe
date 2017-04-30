@@ -221,13 +221,13 @@ char character_representation(int c) {
 
 int determine_winner(int (*board)[3]) {
   int i;
-  for(i = 0; i < 3; i++) {
+  for (i = 0; i < 3; i++) {
     // check rows
-    if((board[i][0] == board[i][1]) && (board[i][1] == board[i][2])) {
+    if ((board[i][0] == board[i][1]) && (board[i][1] == board[i][2])) {
       return board[i][0];
     }
     // checking columns
-    if((board[0][i] == board[1][i]) && (board[1][i] == board[2][i])) {
+    if ((board[0][i] == board[1][i]) && (board[1][i] == board[2][i])) {
       return board[0][i];
     }
   }
