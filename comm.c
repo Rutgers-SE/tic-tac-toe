@@ -336,7 +336,8 @@ int com_parse_info_string(char *response, char *message) {
   }
 
   /* replace the dashes with spaces */
-  unsigned long i;
+  // Somthing is going wrong in this for loop
+  unsigned int i;
   for (i = 0; i < strlen(raw_message); i++) {
     if (raw_message[i] == '-') {
       message[i] = ' ';
@@ -344,7 +345,8 @@ int com_parse_info_string(char *response, char *message) {
       message[i] = raw_message[i];
     }
   }
-
+  // printf("%s\n", raw_message);
+  // printf("%s\n", message);
   return 0;
 }
 

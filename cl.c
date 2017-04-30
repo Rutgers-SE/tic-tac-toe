@@ -24,7 +24,7 @@ void print_payload_and_set_state(char *payload, struct client_state_t *cs) {
     if (turn) {
       printf("YOUR TURN\n");
     } else {
-      printf("NOT your turn\n");
+      printf("NOT YOUR TURN\n");
     }
   }
   if (com_parse_info_string(payload, info_string) == 0) {
