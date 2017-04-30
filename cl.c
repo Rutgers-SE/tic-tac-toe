@@ -2,11 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
-#include <unistd.h>
 #include <sys/select.h>
+#include <unistd.h>
 
 #include "comm.h"
-
 
 struct client_state_t {
   int match_index;
@@ -57,11 +56,11 @@ int main(int argc, char **argv) {
 
   fd_set reads;
 
-
   /* connect to the udp socket */
   struct ConPair cp = create_udp_socket(port);
   struct client_state_t client_state;
-  /* the default index will be -1. this is because the client is not connected to a match */
+  /* the default index will be -1. this is because the client is not connected
+   * to a match */
   client_state.match_index = -1;
   char client_state_string[CMDLEN];
 
@@ -86,7 +85,7 @@ int main(int argc, char **argv) {
     if (select(10, &reads, NULL, NULL, &tv) >= 0) {
       /* read the selectors */
       if (FD_ISSET(0, &reads)) {
-        readline(command);      /* read the user message */
+        readline(command); /* read the user message */
         goto HANDLE_COMMAND;
       }
       if (FD_ISSET(cp.descriptor, &reads)) {
@@ -95,7 +94,7 @@ int main(int argc, char **argv) {
         socklen_t client_len = sizeof(client_in);
         printf("\n[Message from the server]\n");
         if (recvfrom(cp.descriptor, message, CMDLEN, 0, (SA *)&client_in,
-                              &client_len) < 0) {
+                     &client_len) < 0) {
           perror("Could not read from server");
         }
         print_payload_and_set_state(message, &client_state);
@@ -105,7 +104,6 @@ int main(int argc, char **argv) {
     } else {
       perror("There was an error using the select function");
     }
-
 
   HANDLE_COMMAND:
     command_len = strlen(command);
@@ -152,7 +150,10 @@ int main(int argc, char **argv) {
 
     else if (strcmp(operator, "move") == 0) {
 
-      pack_match_id(command, client_state.match_index); /* append the match index to the command string */
+      pack_match_id(
+          command,
+          client_state
+              .match_index); /* append the match index to the command string */
 
       /* attempt to send move command */
       if (sendto(cp.descriptor, command, strlen(command), 0, (SA *)&cp.info,
@@ -210,7 +211,6 @@ int main(int argc, char **argv) {
         printf("You aren't in a match\n");
       }
 
-
     }
 
     else {
@@ -219,8 +219,6 @@ int main(int argc, char **argv) {
   }
 
   close(cp.descriptor);
-
-
 
   return 0;
 }
