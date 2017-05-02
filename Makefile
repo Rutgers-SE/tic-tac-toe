@@ -17,3 +17,6 @@ gs.o: gs.c
 
 cl.o: cl.c
 	$(CC) $(CFLAGS) -c cl.c
+
+clean:
+	rm -f cl gs *.o
