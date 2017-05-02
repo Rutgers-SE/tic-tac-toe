@@ -5,7 +5,7 @@
 #include <sys/types.h>
 
 // defining board state
-#define MPS 512
+#define MMC 1024                /* allow 1024 concurrent matches */
 #define _ 0
 #define X 1
 #define O 2
@@ -77,7 +77,7 @@ struct Match {
 };
 
 struct GameServer {
-  struct Match matches[256];
+  struct Match matches[MMC];
   struct sockaddr_in info;
   struct ConPair cp;
 };

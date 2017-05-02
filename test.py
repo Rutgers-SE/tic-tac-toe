@@ -4,7 +4,7 @@ from itertools import chain
 UDP_IP = "127.0.0.1"
 UDP_PORT = 10001
 
-PLAYER_COUNT = 100
+PLAYER_COUNT = 500*2
 
 MI = [el for tup in list(zip(range(int(PLAYER_COUNT/2)),
                              range(int(PLAYER_COUNT/2)))) for el in tup]
@@ -32,7 +32,6 @@ def play_round(moves):
 
     # make the first move
     for idx in range(0, PLAYER_COUNT, 2):
-        print(idx, len(MI), len(SS))
         SS[idx].sendto(b"move  m" + str(MI[idx]).encode() + one, (UDP_IP, UDP_PORT))
         mc, addr = SS[idx].recvfrom(10001)
         print(mc)

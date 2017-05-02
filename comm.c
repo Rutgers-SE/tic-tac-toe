@@ -121,7 +121,7 @@ int mch_toggle_turn(struct Match *match) {
 
 struct Match *get_pending_or_empty_match(struct GameServer *gs, int *gi) {
   int i;
-  for (i = 0; i < 256; i++) {
+  for (i = 0; i < MMC; i++) {
     if (gs->matches[i].status == M_PENDING ||
         gs->matches[i].status == M_EMPTY) {
       *gi = i;
