@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <sys/select.h>
 
 #include "comm.h"
 
@@ -31,6 +32,37 @@ void cp_send(int descriptor, char *response, SA *info) {
       0) {
     perror("There was an error sending the information to player one");
   }
+}
+
+/**
+ * A timed recv function
+ * return  1 on no response
+ * return  0 on successful reads
+ * return -1 on error
+ */
+int cp_recv(int fd, void *buf, SA *sinfo, socklen_t *slen) {
+  fd_set reads;
+  struct timeval tv;
+  tv.tv_sec = 3;
+  tv.tv_usec = 0;
+  FD_ZERO(&reads);
+  FD_SET(fd, &reads);
+
+  int ready_value = select(10, &reads, NULL, NULL, &tv);
+  if (ready_value == 0) {
+    /* There was no response from the server return 1 */
+    return 1;
+  } else if (ready_value == -1) {
+    /* There was an error using the select function */
+    return -1;
+  }
+
+  if (recvfrom(fd, buf, CMDLEN, 0, sinfo, slen) < 0) {
+    /* if recv from returns a -1 there was an error */
+    return -1;
+  }
+
+  return 0;
 }
 
 /**

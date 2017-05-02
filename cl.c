@@ -91,14 +91,20 @@ int main(int argc, char **argv) {
         char message[CMDLEN];
         SAI client_in;
         socklen_t client_len = sizeof(client_in);
+        int recv_status;
+
         printf("\n[Message from the server]\n");
-        if (recvfrom(cp.descriptor, message, CMDLEN, 0, (SA *)&client_in,
-                     &client_len) < 0) {
+        if ((recv_status = cp_recv(cp.descriptor, message, (SA *)&client_in,
+                     &client_len)) < 0) {
           perror("Could not read from server");
+        } else if (recv_status == 1) {
+          /* there was no response from the server */
+          printf("There was no response from the server");
+        } else {
+          print_payload_and_set_state(message, &client_state);
+          /* printf("server: %s\n", message); */
+          continue;
         }
-        print_payload_and_set_state(message, &client_state);
-        /* printf("server: %s\n", message); */
-        continue;
       }
     } else {
       perror("There was an error using the select function");
