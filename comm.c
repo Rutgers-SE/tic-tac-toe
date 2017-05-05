@@ -43,7 +43,7 @@ void cp_send(int descriptor, char *response, SA *info) {
 int cp_recv(int fd, void *buf, SA *sinfo, socklen_t *slen) {
   fd_set reads;
   struct timeval tv;
-  tv.tv_sec = 3;
+  tv.tv_sec = 3;                /* wait for 3 seconds */
   tv.tv_usec = 0;
   FD_ZERO(&reads);
   FD_SET(fd, &reads);
