@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
   /* setting up the game server */
   struct GameServer gs;
   bzero(&gs, sizeof(gs));       /* set all bits to 0 */
-  gs.cp = create_udp_socket(10001); /* setup the udp socket */
+  gs.cp = create_udp_socket(port); /* setup the udp socket */
   bind(gs.cp.descriptor, (SA *)&gs.cp.info, sizeof(gs.cp.info)); /* binding the game server */
 
   // gameloop
