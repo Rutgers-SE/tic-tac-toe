@@ -1,6 +1,11 @@
-*  Protocol
+* Directions:
 
-*not complete*
+- Run the makefile
+- Start the game server: `./gs`
+- Start two instances of the client, one for each player: `./cl`
+- Play the game!
+
+*  Protocol:
 
 |-----+-------------|
 | Tag | For         |
@@ -11,6 +16,7 @@
 | t   | turn        |
 | i   | information |
 |-----+-------------|
+
 
 |-----------+-----------+-----------------------------------|
 | Client    | Direction | Server                            |
