@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     com_parse_command(command, request);
     if (strcmp(command, "join") == 0) {
       /* handle players trying to join a match */
-      int match_index;
+      int match_index= com_parse_match_index(request, CMDLEN);
       if (gs_join(&gs, client_in, &match_index)) {
         /* failed to join the match: server probably full */
         const char *response = "bad iserver-is-full";

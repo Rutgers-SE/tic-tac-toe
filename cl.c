@@ -9,6 +9,7 @@
 
 struct client_state_t {
   int match_index;
+  int turn;
 };
 
 void print_payload_and_set_state(char *payload, struct client_state_t *cs) {
@@ -22,6 +23,7 @@ void print_payload_and_set_state(char *payload, struct client_state_t *cs) {
     board_print_from_string(board_string);
   }
   if (com_parse_turn(payload, &turn) == 0) {
+    cs->turn = turn;
     if (turn) {
       printf("YOUR TURN\n");
     } else {
@@ -74,7 +76,7 @@ int main(int argc, char **argv) {
     FD_SET(0, &reads);
     FD_SET(cp.descriptor, &reads);
     struct timeval tv;
-    tv.tv_sec = 600;
+    tv.tv_sec = 600; // wait for 600 seconds
     tv.tv_usec = 0;
 
     /* print the prompt */
@@ -141,7 +143,7 @@ int main(int argc, char **argv) {
       }
 
       if (com_response_ok(response, CMDLEN)) {
-
+        // Handle a GS success
         print_payload_and_set_state(response, &client_state);
 
       } else {

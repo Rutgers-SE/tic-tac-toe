@@ -43,7 +43,7 @@ void cp_send(int descriptor, const char *response, SA *info) {
 int cp_recv(int fd, void *buf, SA *sinfo, socklen_t *slen) {
   fd_set reads;
   struct timeval tv;
-  tv.tv_sec = 3;                /* wait for 3 seconds */
+  tv.tv_sec = 3; /* wait for 3 seconds */
   tv.tv_usec = 0;
   FD_ZERO(&reads);
   FD_SET(fd, &reads);
@@ -120,13 +120,19 @@ int mch_toggle_turn(struct Match *match) {
 }
 
 struct Match *get_pending_or_empty_match(struct GameServer *gs, int *gi) {
-  int i;
-  for (i = 0; i < MMC; i++) {
-    if (gs->matches[i].status == M_PENDING ||
-        gs->matches[i].status == M_EMPTY) {
-      *gi = i;
-      return (gs->matches + i);
+  int i = 0;
+  if (*gi == -1) {
+    for (; i < MMC; i++) {
+      if (gs->matches[i].status == M_PENDING ||
+          gs->matches[i].status == M_EMPTY) {
+        *gi = i;
+        return (gs->matches + i);
+      }
     }
+    return NULL;
+  }
+  if (gs->matches[i].status == M_PENDING || gs->matches[i].status == M_EMPTY) {
+    return (gs->matches + *gi);
   }
   return NULL;
 }
@@ -369,7 +375,9 @@ int com_parse_board_string(char *response, char *board_string) {
  */
 int com_parse_match_index(char *response, int len) {
   char match_index_string[CMDLEN];
-  com_parse_char_command(match_index_string, response, 'm');
+  if (com_parse_char_command(match_index_string, response, 'm')) {
+    return -1;
+  }
   return atoi(match_index_string);
 }
 

@@ -75,7 +75,6 @@ struct Match {
 
 struct GameServer {
   struct Match matches[MMC];
-  struct sockaddr_in info;
   struct ConPair cp;
 };
 
