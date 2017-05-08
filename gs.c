@@ -6,14 +6,16 @@
 #include <strings.h>
 
 int main(int argc, char **argv) {
+  /* these three lines of code allows the user to select the port number */
   int port = 10001;
   if (argc >= 2)
     port = atoi(argv[1]);
 
+  /* setting up the game server */
   struct GameServer gs;
-  bzero(&gs, sizeof(gs));
-  gs.cp = create_udp_socket(10001);
-  bind(gs.cp.descriptor, (SA *)&gs.cp.info, sizeof(gs.cp.info));
+  bzero(&gs, sizeof(gs));       /* set all bits to 0 */
+  gs.cp = create_udp_socket(10001); /* setup the udp socket */
+  bind(gs.cp.descriptor, (SA *)&gs.cp.info, sizeof(gs.cp.info)); /* binding the game server */
 
   // gameloop
   while (1) {
@@ -116,18 +118,19 @@ int main(int argc, char **argv) {
         cp_send(gs.cp.descriptor, response, (SA *)&client_in);
         continue;
       }
-      mch_toggle_turn(match);
+      mch_toggle_turn(match);   /* the move was successful. swap the turn */
 
       /* determine the winner */
       int winner = determine_winner(match->board);
       if (winner != _) {
+        // TODO: testing
         /* there is a winner! */
         /* setup the response */
         char win_response[CMDLEN];
-        bzero(win_response, CMDLEN);
         char lose_response[CMDLEN];
-        bzero(lose_response, CMDLEN);
         char board[17];
+        bzero(win_response, CMDLEN); /* setting the bits to 0 */
+        bzero(lose_response, CMDLEN);
         bzero(board, 17);
 
         /* convert the board to a string */
