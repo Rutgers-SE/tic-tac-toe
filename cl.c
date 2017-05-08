@@ -110,7 +110,6 @@ int main(int argc, char **argv) {
       perror("There was an error using the select function");
     }
 
-    char parsed_command[CMDLEN];
     command_len = strlen(command);
     if (command_len == 0) {
       /* there was no command supplied, continue */
@@ -118,6 +117,7 @@ int main(int argc, char **argv) {
       continue;
     }
 
+    char parsed_command[CMDLEN];
     com_parse_command(parsed_command, command);
     if (strcmp(parsed_command, "join") == 0) {
       // handle what happens after joining a match
