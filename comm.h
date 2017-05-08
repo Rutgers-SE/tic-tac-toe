@@ -44,6 +44,7 @@ struct ConPair {
   SAI info;
 };
 struct ConPair create_udp_socket(int port);
+struct ConPair create_udp_socket_by_hostname(char *hostname, int port);
 void cp_send(int descriptor, const char *response, SA *info);
 int cp_recv(int fd, void *buf, SA *sinfo, socklen_t *slen);
 

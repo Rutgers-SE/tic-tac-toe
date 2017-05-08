@@ -1,9 +1,16 @@
 #include <assert.h>
+#include <errno.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "comm.h"
 
@@ -22,6 +29,29 @@ struct ConPair create_udp_socket(int port) {
 
   return cp;
 }
+
+struct ConPair create_udp_socket_by_hostname(char *hostname, int port) {
+  struct hostent *hp;
+
+  struct ConPair cp;
+  if ((cp.descriptor = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+    printf("Error creating the socket.");
+    exit(1);
+  }
+
+  if ((hp = gethostbyname(hostname)) == NULL) {
+    exit(1);
+  }
+
+  bzero(&cp.info, sizeof(cp.info));
+  cp.info.sin_family = AF_INET;
+  bcopy((char *)hp->h_addr_list[0],
+        (char *)&cp.info.sin_addr.s_addr, hp->h_length);
+  cp.info.sin_port = htons(port);
+
+  return cp;
+}
+
 
 /**
  * preconditions:

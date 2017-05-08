@@ -50,8 +50,11 @@ void readline(char *buffer) {
 
 int main(int argc, char **argv) {
   int port = 10001;
-  if (argc >= 2)
+  char *host = "127.0.0.1";
+  if (argc >= 3) {
     port = atoi(argv[1]);
+    port = atoi(argv[2]);
+  }
   /* struct winsize w; */
   /* ioctl(STDOUT_FILENO, TIOCGWINSZ, &w); */
 
@@ -60,7 +63,7 @@ int main(int argc, char **argv) {
   fd_set reads;
 
   /* connect to the udp socket */
-  struct ConPair cp = create_udp_socket(port);
+  struct ConPair cp = create_udp_socket_by_hostname(host, port); /* setup the udp socket */
   struct client_state_t client_state;
   /* the default index will be -1. this is because the client is not connected
    * to a match */

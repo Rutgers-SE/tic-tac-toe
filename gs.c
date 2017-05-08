@@ -8,13 +8,17 @@
 int main(int argc, char **argv) {
   /* these three lines of code allows the user to select the port number */
   int port = 10001;
-  if (argc >= 2)
+  char *host = "127.0.0.1";
+
+  if (argc >= 3) {
     port = atoi(argv[1]);
+    port = atoi(argv[2]);
+  }
 
   /* setting up the game server */
   struct GameServer gs;
   bzero(&gs, sizeof(gs));          /* set all bits to 0 */
-  gs.cp = create_udp_socket(port); /* setup the udp socket */
+  gs.cp = create_udp_socket_by_hostname(host, port); /* setup the udp socket */
   bind(gs.cp.descriptor, (SA *)&gs.cp.info,
        sizeof(gs.cp.info)); /* binding the game server */
 
