@@ -4,10 +4,10 @@ from itertools import chain
 UDP_IP = "127.0.0.1"
 UDP_PORT = 10001
 
-PLAYER_COUNT = 500*2
+PLAYER_COUNT = 500 * 2
 
-MI = [el for tup in list(zip(range(int(PLAYER_COUNT/2)),
-                             range(int(PLAYER_COUNT/2)))) for el in tup]
+MI = [el for tup in list(zip(range(int(PLAYER_COUNT / 2)),
+                             range(int(PLAYER_COUNT / 2)))) for el in tup]
 
 SS = [socket.socket(socket.AF_INET,
                     socket.SOCK_DGRAM) for _ in range(PLAYER_COUNT)]
@@ -29,19 +29,19 @@ def play_round(moves):
     one = play_string(one)
     two = play_string(two)
 
-
     # make the first move
     for idx in range(0, PLAYER_COUNT, 2):
-        SS[idx].sendto(b"move  m" + str(MI[idx]).encode() + one, (UDP_IP, UDP_PORT))
+        SS[idx].sendto(b"move  m" + str(MI[idx]).encode() +
+                       one, (UDP_IP, UDP_PORT))
         mc, addr = SS[idx].recvfrom(10001)
         print(mc)
-
 
     # make first move second player
     for idx in range(1, PLAYER_COUNT, 2):
         om, addr = SS[idx].recvfrom(10001)
         print(om)
-        SS[idx].sendto(b"move m" + str(MI[idx]).encode() + two, (UDP_IP, UDP_PORT))
+        SS[idx].sendto(b"move m" + str(MI[idx]).encode() +
+                       two, (UDP_IP, UDP_PORT))
         mc, addr = SS[idx].recvfrom(10001)
         print(mc)
 

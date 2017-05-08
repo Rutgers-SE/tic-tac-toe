@@ -13,13 +13,13 @@ int main(int argc, char **argv) {
 
   /* setting up the game server */
   struct GameServer gs;
-  bzero(&gs, sizeof(gs));       /* set all bits to 0 */
+  bzero(&gs, sizeof(gs));          /* set all bits to 0 */
   gs.cp = create_udp_socket(port); /* setup the udp socket */
-  bind(gs.cp.descriptor, (SA *)&gs.cp.info, sizeof(gs.cp.info)); /* binding the game server */
+  bind(gs.cp.descriptor, (SA *)&gs.cp.info,
+       sizeof(gs.cp.info)); /* binding the game server */
 
   // gameloop
   while (1) {
-
     /* se */
     char request[CMDLEN];
     SAI client_in;
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
         cp_send(gs.cp.descriptor, response, (SA *)&client_in);
         continue;
       }
-      mch_toggle_turn(match);   /* the move was successful. swap the turn */
+      mch_toggle_turn(match); /* the move was successful. swap the turn */
 
       /* determine the winner */
       int winner = determine_winner(match->board);
