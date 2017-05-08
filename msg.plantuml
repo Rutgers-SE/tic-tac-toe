@@ -1,0 +1,18 @@
+@startuml
+Player1 -> GameServer: "join"
+Player1 <-- GameServer: "ok m0"
+
+Player2 -> GameServer: "join"
+Player2 <-- GameServer: "ok m0 b1-0-0-0-0-0-0-0-0 t0"
+Player1 <-- GameServer: "ok m0 b1-0-0-0-0-0-0-0-0 t1"
+
+Player1 -> GameServer: "move m0 p0-0"
+Player1 <-- GameServer: "ok b1-0-0-0-0-0-0-0-0 t0"
+Player2 <-- GameServer: "ok b1-0-0-0-0-0-0-0-0 t1"
+
+Player2 -> GameServer: "move m0 p1-1"
+Player2 <-- GameServer: "ok b1-0-0-0-2-0-0-0-0 t0"
+Player1 <-- GameServer: "ok b1-0-0-0-2-0-0-0-0 t1"
+
+@enduml
+
