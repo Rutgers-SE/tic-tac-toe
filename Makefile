@@ -20,3 +20,4 @@ cl.o: cl.c
 
 clean:
 	rm -f cl gs *.o
+
