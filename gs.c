@@ -11,9 +11,10 @@ int main(int argc, char **argv) {
   char *host = "127.0.0.1";
 
   if (argc >= 3) {
-    port = atoi(argv[1]);
+    host = argv[1];
     port = atoi(argv[2]);
   }
+  printf("Listening: %s %i\n", host, port);
 
   /* setting up the game server */
   struct GameServer gs;

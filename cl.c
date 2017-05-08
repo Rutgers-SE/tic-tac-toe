@@ -52,13 +52,10 @@ int main(int argc, char **argv) {
   int port = 10001;
   char *host = "127.0.0.1";
   if (argc >= 3) {
-    port = atoi(argv[1]);
+    host = argv[1];
     port = atoi(argv[2]);
   }
-  /* struct winsize w; */
-  /* ioctl(STDOUT_FILENO, TIOCGWINSZ, &w); */
-
-  /* printf("lines %d\n", w.ws_row); */
+  printf("Listening: %s %i\n", host, port);
 
   fd_set reads;
 
