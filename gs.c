@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
       int match_index;
       if (gs_join(&gs, client_in, &match_index)) {
         /* failed to join the match: server probably full */
-        char *response = "bad iserver-is-full";
+        const char *response = "bad iserver-is-full";
         cp_send(gs.cp.descriptor, response, (SA *)&client_in);
         continue;
       }
@@ -188,7 +188,7 @@ int main(int argc, char **argv) {
 
     else {
       printf("Sending Error Message\n");
-      char response[] = "bad icommand-not-supported";
+      const char *response = "bad icommand-not-supported";
       cp_send(gs.cp.descriptor, response, (SA *)&client_in);
     }
   }

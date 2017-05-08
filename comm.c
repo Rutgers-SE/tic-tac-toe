@@ -27,7 +27,7 @@ struct ConPair create_udp_socket(int port) {
  * preconditions:
  * response must be a valid string terminated by a NULL character
  */
-void cp_send(int descriptor, char *response, SA *info) {
+void cp_send(int descriptor, const char *response, SA *info) {
   if (sendto(descriptor, response, strlen(response), 0, info, sizeof(*info)) <
       0) {
     perror("There was an error sending the information to player one");
