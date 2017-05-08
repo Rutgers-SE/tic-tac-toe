@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
 
         printf("\n[Message from the server]\n");
         if ((recv_status = cp_recv(cp.descriptor, message, (SA *)&client_in,
-                     &client_len)) < 0) {
+                                   &client_len)) < 0) {
           perror("Could not read from server");
         } else if (recv_status == 1) {
           /* there was no response from the server */
@@ -110,6 +110,7 @@ int main(int argc, char **argv) {
       perror("There was an error using the select function");
     }
 
+    char parsed_command[CMDLEN];
     command_len = strlen(command);
     if (command_len == 0) {
       /* there was no command supplied, continue */
@@ -117,9 +118,8 @@ int main(int argc, char **argv) {
       continue;
     }
 
-    char operator[CMDLEN];
-    com_parse_command(operator, command);
-    if (strcmp(operator, "join") == 0) {
+    com_parse_command(parsed_command, command);
+    if (strcmp(parsed_command, "join") == 0) {
       // handle what happens after joining a match
 
       /* attempt to join match */
@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
       }
     }
 
-    else if (strcmp(operator, "move") == 0) {
+    else if (strcmp(parsed_command, "move") == 0) {
 
       pack_match_id(
           command,
@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
       }
     }
 
-    else if (strcmp(operator, "leave") == 0) {
+    else if (strcmp(parsed_command, "leave") == 0) {
       char response[CMDLEN];
       bzero(response, CMDLEN);
       SAI client_in;
