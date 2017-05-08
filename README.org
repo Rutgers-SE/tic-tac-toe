@@ -5,7 +5,7 @@
 - Start two instances of the client, one for each player: `./cl`
 - Play the game!
 
-*  Protocol
+*  Protocol:
 
 |-----+-------------|
 | Tag | For         |
